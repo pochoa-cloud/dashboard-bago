@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPIs Portafolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0f14;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4a5068;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #1a1d26;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    background: #111318;
+    border: 1px solid #1a1d26;
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Top accent bar */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .card.blue::before   { background: linear-gradient(90deg, #4f8ef7, #7c5cfc); }
+  .card.yellow::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
+  .card.green::before  { background: linear-gradient(90deg, #22c55e, #10b981); }
+  .card.red::before    { background: linear-gradient(90deg, #ef4444, #f97316); }
+
+  .card:hover.blue   { border-color: rgba(79,142,247,0.3); }
+  .card:hover.yellow { border-color: rgba(245,158,11,0.3); }
+  .card:hover.green  { border-color: rgba(34,197,94,0.3); }
+  .card:hover.red    { border-color: rgba(239,68,68,0.3); }
+
+  /* Ambient glow */
+  .card::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    opacity: 0.04;
+    pointer-events: none;
+  }
+
+  .card.blue::after   { background: #4f8ef7; }
+  .card.yellow::after { background: #f59e0b; }
+  .card.green::after  { background: #22c55e; }
+  .card.red::after    { background: #ef4444; }
+
+  .card-icon {
+    font-size: 18px;
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #4a5068;
+    margin-bottom: 10px;
+  }
+
+  .card-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+
+  .card.blue   .card-value { color: #4f8ef7; }
+  .card.yellow .card-value { color: #f59e0b; }
+  .card.green  .card-value { color: #22c55e; }
+  .card.red    .card-value { color: #ef4444; }
+
+  /* Progress bar */
+  .progress-track {
+    width: 100%;
+    height: 4px;
+    background: #1a1d26;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card.blue   .progress-fill { background: linear-gradient(90deg, #4f8ef7, #7c5cfc); }
+  .card.yellow .progress-fill { background: linear-gradient(90deg, #f59e0b, #f97316); }
+  .card.green  .progress-fill { background: linear-gradient(90deg, #22c55e, #10b981); }
+  .card.red    .progress-fill { background: linear-gradient(90deg, #ef4444, #f97316); }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #4a5068;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  .card.blue   .status-dot { background: #4f8ef7; }
+  .card.yellow .status-dot { background: #f59e0b; box-shadow: 0 0 5px rgba(245,158,11,0.5); }
+  .card.green  .status-dot { background: #22c55e; box-shadow: 0 0 5px rgba(34,197,94,0.5); }
+  .card.red    .status-dot { background: #ef4444; box-shadow: 0 0 5px rgba(239,68,68,0.5); }
+
+  .card-projects {
+    font-size: 11px;
+    color: #2a2d3a;
+  }
+
+  /* Animate on load */
+  .card {
+    opacity: 0;
+    animation: cardIn 0.5s ease forwards;
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.15s; }
+  .card:nth-child(3) { animation-delay: 0.25s; }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Footer row */
+  .footer-row {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-meta {
+    font-size: 11px;
+    color: #2a2d3a;
+  }
+
+  .footer-meta strong {
+    color: #3a3d4a;
+    font-weight: 500;
+  }
+
+  @media (max-width: 600px) {
+    .cards { grid-template-columns: 1fr; }
+    .card-value { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="section-label">Indicadores consolidados del portafolio</div>
+
+  <div class="cards">
+
+    <!-- Avance Real -->
+    <div class="card blue" id="card-real">
+      <div class="card-icon">📈</div>
+      <div class="card-label">Avance Real</div>
+      <div class="card-value" id="val-real">69,50%</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="bar-real" style="width:0%"></div>
+      </div>
+      <div class="card-footer">
+        <div class="card-status">
+          <div class="status-dot"></div>
+          <span>En seguimiento</span>
+        </div>
+        <div class="card-projects">10 proyectos</div>
+      </div>
+    </div>
+
+    <!-- Avance Esperado -->
+    <div class="card yellow" id="card-esp">
+      <div class="card-icon">🎯</div>
+      <div class="card-label">Avance Esperado</div>
+      <div class="card-value" id="val-esp">83,80%</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="bar-esp" style="width:0%"></div>
+      </div>
+      <div class="card-footer">
+        <div class="card-status">
+          <div class="status-dot"></div>
+          <span>Meta acumulada</span>
+        </div>
+        <div class="card-projects">10 proyectos</div>
+      </div>
+    </div>
+
+    <!-- SPI -->
+    <div class="card yellow" id="card-spi">
+      <div class="card-icon">⚡</div>
+      <div class="card-label">SPI Portafolio</div>
+      <div class="card-value" id="val-spi">0,83</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="bar-spi" style="width:0%"></div>
+      </div>
+      <div class="card-footer">
+        <div class="card-status">
+          <div class="status-dot"></div>
+          <span id="spi-label">Leve retraso</span>
+        </div>
+        <div class="card-projects">meta = 1,00</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-row">
+    <div class="footer-meta">Portafolio Estratégico · <strong>Bagó Ecuador</strong></div>
+    <div class="footer-meta" id="last-update"></div>
+  </div>
+</div>
+
+<script>
+  // ── EDITA ESTOS 3 VALORES cada semana ──────────────────────
+  const avanceReal     = 69.50;   // % real del portafolio
+  const avanceEsperado = 83.80;   // % esperado del portafolio
+  // SPI se calcula automáticamente
+  // ────────────────────────────────────────────────────────────
+
+  const spi = avanceReal / avanceEsperado;
+
+  // Actualizar valores en pantalla
+  document.getElementById('val-real').textContent = avanceReal.toFixed(2).replace('.', ',') + '%';
+  document.getElementById('val-esp').textContent  = avanceEsperado.toFixed(2).replace('.', ',') + '%';
+  document.getElementById('val-spi').textContent  = spi.toFixed(2).replace('.', ',');
+
+  // Color dinámico del SPI
+  const cardSpi = document.getElementById('card-spi');
+  const barSpi  = document.getElementById('bar-spi');
+  const lblSpi  = document.getElementById('spi-label');
+
+  cardSpi.classList.remove('blue','yellow','green','red');
+  if (spi >= 0.95) {
+    cardSpi.classList.add('green');
+    lblSpi.textContent = 'En tiempo';
+  } else if (spi >= 0.85) {
+    cardSpi.classList.add('yellow');
+    lblSpi.textContent = 'Leve retraso';
+  } else {
+    cardSpi.classList.add('red');
+    lblSpi.textContent = 'Retraso significativo';
+  }
+
+  // Animar barras después de carga
+  setTimeout(() => {
+    document.getElementById('bar-real').style.width = avanceReal + '%';
+    document.getElementById('bar-esp').style.width  = avanceEsperado + '%';
+    document.getElementById('bar-spi').style.width  = Math.min(spi * 100, 100) + '%';
+  }, 400);
+
+  // Fecha de actualización
+  const now = new Date();
+  const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+  document.getElementById('last-update').innerHTML =
+    'Actualizado: <strong>' + now.toLocaleDateString('es-ES', opts) + '</strong>';
+</script>
+
+</body>
+</html>
