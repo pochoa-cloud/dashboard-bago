@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distribución por Área</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0f14;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+  }
+
+  .wrapper { width: 100%; max-width: 860px; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4a5068;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #1a1d26;
+  }
+
+  .chart-container {
+    background: #111318;
+    border: 1px solid #1a1d26;
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .chart-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #c0c4d6;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #4a5068;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+  }
+
+  .area-rows { display: flex; flex-direction: column; gap: 18px; }
+
+  .area-row { display: flex; flex-direction: column; gap: 6px; }
+
+  .area-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .area-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #e8eaf0;
+  }
+
+  .area-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .area-count {
+    font-size: 11px;
+    color: #4a5068;
+    background: #1a1d26;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .area-pct {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 48px;
+    text-align: right;
+  }
+
+  .bar-track {
+    width: 100%;
+    height: 8px;
+    background: #1a1d26;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    width: 0%;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  /* Area colors - magenta palette */
+  .color-0 .bar-fill  { background: linear-gradient(90deg, #e040fb, #ab47bc); }
+  .color-0 .area-pct  { color: #e040fb; }
+  .color-1 .bar-fill  { background: linear-gradient(90deg, #f06292, #e040fb); }
+  .color-1 .area-pct  { color: #f06292; }
+  .color-2 .bar-fill  { background: linear-gradient(90deg, #ce93d8, #ba68c8); }
+  .color-2 .area-pct  { color: #ce93d8; }
+  .color-3 .bar-fill  { background: linear-gradient(90deg, #80deea, #26c6da); }
+  .color-3 .area-pct  { color: #26c6da; }
+  .color-4 .bar-fill  { background: linear-gradient(90deg, #f48fb1, #f06292); }
+  .color-4 .area-pct  { color: #f48fb1; }
+  .color-5 .bar-fill  { background: linear-gradient(90deg, #b39ddb, #9575cd); }
+  .color-5 .area-pct  { color: #b39ddb; }
+
+  .divider {
+    height: 1px;
+    background: #1a1d26;
+    margin: 6px 0 0;
+  }
+
+  .footer-row {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-meta { font-size: 11px; color: #2a2d3a; }
+  .footer-meta strong { color: #3a3d4a; font-weight: 500; }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: #4a5068;
+    font-size: 13px;
+  }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid #1a1d26;
+    border-top-color: #e040fb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 10px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="section-label">Distribución de proyectos por área</div>
+
+  <div class="chart-container" id="chart-container">
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      Cargando datos desde Notion...
+    </div>
+    <div id="chart" style="display:none">
+      <div class="chart-header">
+        <div class="chart-title">Proyectos por Área</div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#e040fb"></div>
+            <span>% Avance Real</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#1a1d26; border:1px solid #3a3d4a"></div>
+            <span>Proyectos</span>
+          </div>
+        </div>
+      </div>
+      <div class="area-rows" id="area-rows"></div>
+    </div>
+  </div>
+
+  <div class="footer-row">
+    <div class="footer-meta">Portafolio Estratégico · <strong>Bagó Ecuador</strong></div>
+    <div class="footer-meta" id="last-update"></div>
+  </div>
+</div>
+
+<script>
+  const NOTION_TOKEN = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const PROJECTS_DB  = '24d0a97eed8d81e99427e311c9f026aa';
+  const WORKER_URL   = 'https://royal-limit-9465.pochoa.workers.dev/';
+
+  async function loadData() {
+    try {
+      // Fetch all projects
+      let allResults = [];
+      let cursor = undefined;
+
+      do {
+        const payload = { page_size: 100 };
+        if (cursor) payload.start_cursor = cursor;
+
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: `https://api.notion.com/v1/databases/${PROJECTS_DB}/query`,
+            token: `Bearer ${NOTION_TOKEN}`,
+            payload
+          })
+        });
+
+        const data = await res.json();
+        if (!data.results) throw new Error('No results');
+        allResults = allResults.concat(data.results);
+        cursor = data.has_more ? data.next_cursor : undefined;
+      } while (cursor);
+
+      // Group by area
+      const areas = {};
+      for (const page of allResults) {
+        const props = page.properties;
+
+        // Get area - multiselect or select
+        let area = 'Sin área';
+        const areaProp = props['Área'];
+        if (areaProp) {
+          if (areaProp.type === 'select' && areaProp.select) {
+            area = areaProp.select.name;
+          } else if (areaProp.type === 'multi_select' && areaProp.multi_select?.length > 0) {
+            area = areaProp.multi_select.map(a => a.name).join(', ');
+          }
+        }
+
+        // Get % Real
+        let pctReal = null;
+        const realProp = props['% Real'];
+        if (realProp) {
+          if (realProp.type === 'number') pctReal = realProp.number;
+          else if (realProp.type === 'formula') pctReal = realProp.formula?.number;
+          else if (realProp.type === 'rollup') pctReal = realProp.rollup?.number;
+        }
+        if (pctReal !== null && pctReal <= 1) pctReal = pctReal * 100;
+
+        if (!areas[area]) areas[area] = { count: 0, totalPct: 0, validPct: 0 };
+        areas[area].count++;
+        if (pctReal !== null) {
+          areas[area].totalPct += pctReal;
+          areas[area].validPct++;
+        }
+      }
+
+      // Sort by count desc
+      const sorted = Object.entries(areas)
+        .map(([name, d]) => ({
+          name,
+          count: d.count,
+          avgPct: d.validPct > 0 ? d.totalPct / d.validPct : 0
+        }))
+        .sort((a, b) => b.count - a.count);
+
+      renderChart(sorted);
+
+    } catch (err) {
+      document.getElementById('loading').innerHTML = '<p style="color:#ef5350">Error cargando datos.</p>';
+      console.error(err);
+    }
+  }
+
+  function renderChart(areas) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('chart').style.display = 'block';
+
+    const maxPct = Math.max(...areas.map(a => a.avgPct), 1);
+    const container = document.getElementById('area-rows');
+
+    areas.forEach((area, i) => {
+      const colorClass = `color-${i % 6}`;
+      const pctDisplay = area.avgPct.toFixed(1).replace('.', ',') + '%';
+      const barWidth = (area.avgPct / 100) * 100;
+
+      const row = document.createElement('div');
+      row.className = `area-row ${colorClass}`;
+      row.innerHTML = `
+        <div class="area-meta">
+          <div class="area-name">${area.name}</div>
+          <div class="area-stats">
+            <div class="area-count">${area.count} ${area.count === 1 ? 'proyecto' : 'proyectos'}</div>
+            <div class="area-pct">${pctDisplay}</div>
+          </div>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" data-width="${barWidth}"></div>
+        </div>
+        ${i < areas.length - 1 ? '<div class="divider"></div>' : ''}
+      `;
+      container.appendChild(row);
+    });
+
+    // Animate bars
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+      });
+    }, 300);
+
+    // Date
+    const now = new Date();
+    const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('last-update').innerHTML =
+      'Actualizado: <strong>' + now.toLocaleDateString('es-ES', opts) + '</strong>';
+  }
+
+  loadData();
+</script>
+
+</body>
+</html>
