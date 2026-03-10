@@ -281,6 +281,7 @@
 <script>
   const NOTION_TOKEN = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
   const DATABASE_ID  = '31a0a97eed8d80529d6ffef61cd63003';
+  const PAGE_ID      = '31a0a97eed8d8019b154fd5b94712b14';
 
   async function loadData() {
     try {
@@ -288,21 +289,22 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          url: `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
+          url: `https://api.notion.com/v1/pages/${PAGE_ID}`,
           token: `Bearer ${NOTION_TOKEN}`,
-          payload: { page_size: 1 }
+          payload: {}
         })
       });
 
       const data = await res.json();
 
-      if (!data.results || data.results.length === 0) {
+      if (!data.properties) {
         showError('No se encontraron datos.');
+        console.log('Notion error:', JSON.stringify(data));
         return;
       }
 
-      console.log('Notion response:', JSON.stringify(data.results[0].properties, null, 2));
-      const props = data.results[0].properties;
+      console.log('Notion response:', JSON.stringify(data.properties, null, 2));
+      const props = data.properties;
 
       // Extraer número de cualquier tipo de propiedad Notion
       function extractNum(prop) {
