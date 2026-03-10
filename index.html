@@ -81,52 +81,54 @@
     pointer-events: none;
   }
 
-  .card.blue::before   { background: linear-gradient(90deg, #4f8ef7, #7c5cfc); }
-  .card.yellow::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
-  .card.green::before  { background: linear-gradient(90deg, #22c55e, #10b981); }
-  .card.red::before    { background: linear-gradient(90deg, #ef4444, #f97316); }
+  /* Magenta palette */
+  .card.blue::before   { background: linear-gradient(90deg, #e040fb, #ab47bc); }
+  .card.yellow::before { background: linear-gradient(90deg, #f06292, #e040fb); }
+  .card.green::before  { background: linear-gradient(90deg, #26c6da, #00bcd4); }
+  .card.red::before    { background: linear-gradient(90deg, #ef5350, #e040fb); }
 
-  .card.blue::after   { background: #4f8ef7; }
-  .card.yellow::after { background: #f59e0b; }
-  .card.green::after  { background: #22c55e; }
-  .card.red::after    { background: #ef4444; }
+  .card.blue::after   { background: #e040fb; }
+  .card.yellow::after { background: #f06292; }
+  .card.green::after  { background: #26c6da; }
+  .card.red::after    { background: #ef5350; }
 
-  .card:hover.blue   { border-color: rgba(79,142,247,0.3); }
-  .card:hover.yellow { border-color: rgba(245,158,11,0.3); }
-  .card:hover.green  { border-color: rgba(34,197,94,0.3); }
-  .card:hover.red    { border-color: rgba(239,68,68,0.3); }
+  .card:hover.blue   { border-color: rgba(224,64,251,0.35); }
+  .card:hover.yellow { border-color: rgba(240,98,146,0.35); }
+  .card:hover.green  { border-color: rgba(38,198,218,0.35); }
+  .card:hover.red    { border-color: rgba(239,83,80,0.35); }
 
-  .card-icon { font-size: 18px; margin-bottom: 14px; opacity: 0.8; }
+  .card-icon { display: none; }
 
   .card-label {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #4a5068;
-    margin-bottom: 10px;
+    color: #c0c4d6;
+    margin-bottom: 14px;
   }
 
   .card-value {
     font-family: 'Syne', sans-serif;
-    font-size: 38px;
+    font-size: 42px;
     font-weight: 800;
     line-height: 1;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
     letter-spacing: -0.02em;
   }
 
-  .card.blue   .card-value { color: #4f8ef7; }
-  .card.yellow .card-value { color: #f59e0b; }
-  .card.green  .card-value { color: #22c55e; }
-  .card.red    .card-value { color: #ef4444; }
+  .card.blue   .card-value { color: #e040fb; }
+  .card.yellow .card-value { color: #f06292; }
+  .card.green  .card-value { color: #26c6da; }
+  .card.red    .card-value { color: #ef5350; }
 
   .progress-track {
     width: 100%;
     height: 4px;
     background: #1a1d26;
     border-radius: 4px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     overflow: hidden;
   }
 
@@ -137,36 +139,15 @@
     transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .card.blue   .progress-fill { background: linear-gradient(90deg, #4f8ef7, #7c5cfc); }
-  .card.yellow .progress-fill { background: linear-gradient(90deg, #f59e0b, #f97316); }
-  .card.green  .progress-fill { background: linear-gradient(90deg, #22c55e, #10b981); }
-  .card.red    .progress-fill { background: linear-gradient(90deg, #ef4444, #f97316); }
+  .card.blue   .progress-fill { background: linear-gradient(90deg, #e040fb, #ab47bc); }
+  .card.yellow .progress-fill { background: linear-gradient(90deg, #f06292, #e040fb); }
+  .card.green  .progress-fill { background: linear-gradient(90deg, #26c6da, #00bcd4); }
+  .card.red    .progress-fill { background: linear-gradient(90deg, #ef5350, #e040fb); }
 
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .card-status {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    color: #4a5068;
-  }
-
-  .status-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-  }
-
-  .card.blue   .status-dot { background: #4f8ef7; }
-  .card.yellow .status-dot { background: #f59e0b; box-shadow: 0 0 5px rgba(245,158,11,0.5); }
-  .card.green  .status-dot { background: #22c55e; box-shadow: 0 0 5px rgba(34,197,94,0.5); }
-  .card.red    .status-dot { background: #ef4444; box-shadow: 0 0 5px rgba(239,68,68,0.5); }
-
-  .card-projects { font-size: 11px; color: #2a2d3a; }
+  .card-footer { display: none; }
+  .card-status { display: none; }
+  .status-dot  { display: none; }
+  .card-projects { display: none; }
 
   .footer-row {
     margin-top: 14px;
