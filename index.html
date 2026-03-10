@@ -18,13 +18,9 @@
     padding: 32px 24px;
   }
 
-  .wrapper {
-    width: 100%;
-    max-width: 860px;
-  }
+  .wrapper { width: 100%; max-width: 860px; }
 
   .section-label {
-    font-family: 'DM Sans', sans-serif;
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.12em;
@@ -56,15 +52,17 @@
     padding: 24px 24px 20px;
     position: relative;
     overflow: hidden;
-    cursor: default;
     transition: transform 0.2s ease, border-color 0.2s ease;
+    opacity: 0;
+    animation: cardIn 0.5s ease forwards;
   }
 
-  .card:hover {
-    transform: translateY(-2px);
-  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.15s; }
+  .card:nth-child(3) { animation-delay: 0.25s; }
 
-  /* Top accent bar */
+  .card:hover { transform: translateY(-2px); }
+
   .card::before {
     content: '';
     position: absolute;
@@ -73,17 +71,6 @@
     border-radius: 16px 16px 0 0;
   }
 
-  .card.blue::before   { background: linear-gradient(90deg, #4f8ef7, #7c5cfc); }
-  .card.yellow::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
-  .card.green::before  { background: linear-gradient(90deg, #22c55e, #10b981); }
-  .card.red::before    { background: linear-gradient(90deg, #ef4444, #f97316); }
-
-  .card:hover.blue   { border-color: rgba(79,142,247,0.3); }
-  .card:hover.yellow { border-color: rgba(245,158,11,0.3); }
-  .card:hover.green  { border-color: rgba(34,197,94,0.3); }
-  .card:hover.red    { border-color: rgba(239,68,68,0.3); }
-
-  /* Ambient glow */
   .card::after {
     content: '';
     position: absolute;
@@ -94,16 +81,22 @@
     pointer-events: none;
   }
 
+  .card.blue::before   { background: linear-gradient(90deg, #4f8ef7, #7c5cfc); }
+  .card.yellow::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
+  .card.green::before  { background: linear-gradient(90deg, #22c55e, #10b981); }
+  .card.red::before    { background: linear-gradient(90deg, #ef4444, #f97316); }
+
   .card.blue::after   { background: #4f8ef7; }
   .card.yellow::after { background: #f59e0b; }
   .card.green::after  { background: #22c55e; }
   .card.red::after    { background: #ef4444; }
 
-  .card-icon {
-    font-size: 18px;
-    margin-bottom: 14px;
-    opacity: 0.8;
-  }
+  .card:hover.blue   { border-color: rgba(79,142,247,0.3); }
+  .card:hover.yellow { border-color: rgba(245,158,11,0.3); }
+  .card:hover.green  { border-color: rgba(34,197,94,0.3); }
+  .card:hover.red    { border-color: rgba(239,68,68,0.3); }
+
+  .card-icon { font-size: 18px; margin-bottom: 14px; opacity: 0.8; }
 
   .card-label {
     font-size: 11px;
@@ -128,7 +121,6 @@
   .card.green  .card-value { color: #22c55e; }
   .card.red    .card-value { color: #ef4444; }
 
-  /* Progress bar */
   .progress-track {
     width: 100%;
     height: 4px;
@@ -141,6 +133,7 @@
   .progress-fill {
     height: 100%;
     border-radius: 4px;
+    width: 0%;
     transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -173,26 +166,8 @@
   .card.green  .status-dot { background: #22c55e; box-shadow: 0 0 5px rgba(34,197,94,0.5); }
   .card.red    .status-dot { background: #ef4444; box-shadow: 0 0 5px rgba(239,68,68,0.5); }
 
-  .card-projects {
-    font-size: 11px;
-    color: #2a2d3a;
-  }
+  .card-projects { font-size: 11px; color: #2a2d3a; }
 
-  /* Animate on load */
-  .card {
-    opacity: 0;
-    animation: cardIn 0.5s ease forwards;
-  }
-  .card:nth-child(1) { animation-delay: 0.05s; }
-  .card:nth-child(2) { animation-delay: 0.15s; }
-  .card:nth-child(3) { animation-delay: 0.25s; }
-
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Footer row */
   .footer-row {
     margin-top: 14px;
     display: flex;
@@ -200,14 +175,33 @@
     justify-content: space-between;
   }
 
-  .footer-meta {
-    font-size: 11px;
-    color: #2a2d3a;
+  .footer-meta { font-size: 11px; color: #2a2d3a; }
+  .footer-meta strong { color: #3a3d4a; font-weight: 500; }
+
+  /* Loading state */
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: #4a5068;
+    font-size: 13px;
+    display: none;
   }
 
-  .footer-meta strong {
-    color: #3a3d4a;
-    font-weight: 500;
+  .loading.visible { display: block; }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid #1a1d26;
+    border-top-color: #4f8ef7;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 10px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   @media (max-width: 600px) {
@@ -221,54 +215,56 @@
 <div class="wrapper">
   <div class="section-label">Indicadores consolidados del portafolio</div>
 
-  <div class="cards">
+  <div id="loading" class="loading visible">
+    <div class="spinner"></div>
+    Cargando datos desde Notion...
+  </div>
 
-    <!-- Avance Real -->
+  <div class="cards" id="cards" style="display:none">
+
     <div class="card blue" id="card-real">
       <div class="card-icon">📈</div>
       <div class="card-label">Avance Real</div>
-      <div class="card-value" id="val-real">69,50%</div>
+      <div class="card-value" id="val-real">—</div>
       <div class="progress-track">
-        <div class="progress-fill" id="bar-real" style="width:0%"></div>
+        <div class="progress-fill" id="bar-real"></div>
       </div>
       <div class="card-footer">
         <div class="card-status">
           <div class="status-dot"></div>
           <span>En seguimiento</span>
         </div>
-        <div class="card-projects">10 proyectos</div>
+        <div class="card-projects" id="proj-count">— proyectos</div>
       </div>
     </div>
 
-    <!-- Avance Esperado -->
     <div class="card yellow" id="card-esp">
       <div class="card-icon">🎯</div>
       <div class="card-label">Avance Esperado</div>
-      <div class="card-value" id="val-esp">83,80%</div>
+      <div class="card-value" id="val-esp">—</div>
       <div class="progress-track">
-        <div class="progress-fill" id="bar-esp" style="width:0%"></div>
+        <div class="progress-fill" id="bar-esp"></div>
       </div>
       <div class="card-footer">
         <div class="card-status">
           <div class="status-dot"></div>
           <span>Meta acumulada</span>
         </div>
-        <div class="card-projects">10 proyectos</div>
+        <div class="card-projects">meta del período</div>
       </div>
     </div>
 
-    <!-- SPI -->
     <div class="card yellow" id="card-spi">
       <div class="card-icon">⚡</div>
       <div class="card-label">SPI Portafolio</div>
-      <div class="card-value" id="val-spi">0,83</div>
+      <div class="card-value" id="val-spi">—</div>
       <div class="progress-track">
-        <div class="progress-fill" id="bar-spi" style="width:0%"></div>
+        <div class="progress-fill" id="bar-spi"></div>
       </div>
       <div class="card-footer">
         <div class="card-status">
           <div class="status-dot"></div>
-          <span id="spi-label">Leve retraso</span>
+          <span id="spi-label">Calculando...</span>
         </div>
         <div class="card-projects">meta = 1,00</div>
       </div>
@@ -283,48 +279,98 @@
 </div>
 
 <script>
-  // ── EDITA ESTOS 3 VALORES cada semana ──────────────────────
-  const avanceReal     = 69.50;   // % real del portafolio
-  const avanceEsperado = 83.80;   // % esperado del portafolio
-  // SPI se calcula automáticamente
-  // ────────────────────────────────────────────────────────────
+  const NOTION_TOKEN = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const DATABASE_ID  = '31a0a97eed8d80529d6ffef61cd63003';
 
-  const spi = avanceReal / avanceEsperado;
+  async function loadData() {
+    try {
+      const res = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NOTION_TOKEN}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ page_size: 1 })
+      });
 
-  // Actualizar valores en pantalla
-  document.getElementById('val-real').textContent = avanceReal.toFixed(2).replace('.', ',') + '%';
-  document.getElementById('val-esp').textContent  = avanceEsperado.toFixed(2).replace('.', ',') + '%';
-  document.getElementById('val-spi').textContent  = spi.toFixed(2).replace('.', ',');
+      const data = await res.json();
 
-  // Color dinámico del SPI
-  const cardSpi = document.getElementById('card-spi');
-  const barSpi  = document.getElementById('bar-spi');
-  const lblSpi  = document.getElementById('spi-label');
+      if (!data.results || data.results.length === 0) {
+        showError('No se encontraron datos.');
+        return;
+      }
 
-  cardSpi.classList.remove('blue','yellow','green','red');
-  if (spi >= 0.95) {
-    cardSpi.classList.add('green');
-    lblSpi.textContent = 'En tiempo';
-  } else if (spi >= 0.85) {
-    cardSpi.classList.add('yellow');
-    lblSpi.textContent = 'Leve retraso';
-  } else {
-    cardSpi.classList.add('red');
-    lblSpi.textContent = 'Retraso significativo';
+      const props = data.results[0].properties;
+
+      // Leer valores — ajusta los nombres si difieren
+      const realRaw = props['Avance real del Portafolio']?.rollup?.number ?? null;
+      const espRaw  = props['Avance Esperado']?.rollup?.number ?? null;
+      const spiRaw  = props['SPI Portafolio']?.formula?.number ?? null;
+
+      const real = realRaw !== null ? realRaw * 100 : null;
+      const esp  = espRaw  !== null ? espRaw  * 100 : null;
+      const spi  = spiRaw  !== null ? spiRaw       : (real && esp ? real / esp : null);
+
+      renderCards(real, esp, spi);
+
+    } catch (err) {
+      showError('Error conectando con Notion.');
+      console.error(err);
+    }
   }
 
-  // Animar barras después de carga
-  setTimeout(() => {
-    document.getElementById('bar-real').style.width = avanceReal + '%';
-    document.getElementById('bar-esp').style.width  = avanceEsperado + '%';
-    document.getElementById('bar-spi').style.width  = Math.min(spi * 100, 100) + '%';
-  }, 400);
+  function renderCards(real, esp, spi) {
+    document.getElementById('loading').classList.remove('visible');
+    document.getElementById('cards').style.display = 'grid';
 
-  // Fecha de actualización
-  const now = new Date();
-  const opts = { day: 'numeric', month: 'long', year: 'numeric' };
-  document.getElementById('last-update').innerHTML =
-    'Actualizado: <strong>' + now.toLocaleDateString('es-ES', opts) + '</strong>';
+    // Avance Real
+    document.getElementById('val-real').textContent =
+      real !== null ? real.toFixed(2).replace('.', ',') + '%' : 'N/D';
+
+    // Avance Esperado
+    document.getElementById('val-esp').textContent =
+      esp !== null ? esp.toFixed(2).replace('.', ',') + '%' : 'N/D';
+
+    // SPI con color dinámico
+    const spiVal = spi !== null ? spi : (real && esp ? real / esp * 100 : null);
+    const spiDisplay = spiVal !== null ? spiVal.toFixed(2).replace('.', ',') : 'N/D';
+    document.getElementById('val-spi').textContent = spiDisplay;
+
+    const cardSpi = document.getElementById('card-spi');
+    const lblSpi  = document.getElementById('spi-label');
+    cardSpi.classList.remove('blue', 'yellow', 'green', 'red');
+
+    if (spiVal >= 0.95) {
+      cardSpi.classList.add('green');
+      lblSpi.textContent = 'En tiempo';
+    } else if (spiVal >= 0.85) {
+      cardSpi.classList.add('yellow');
+      lblSpi.textContent = 'Leve retraso';
+    } else {
+      cardSpi.classList.add('red');
+      lblSpi.textContent = 'Retraso significativo';
+    }
+
+    // Animar barras
+    setTimeout(() => {
+      if (real !== null) document.getElementById('bar-real').style.width = Math.min(real, 100) + '%';
+      if (esp  !== null) document.getElementById('bar-esp').style.width  = Math.min(esp,  100) + '%';
+      if (spiVal !== null) document.getElementById('bar-spi').style.width = Math.min(spiVal * 100, 100) + '%';
+    }, 400);
+
+    // Fecha
+    const now  = new Date();
+    const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('last-update').innerHTML =
+      'Actualizado: <strong>' + now.toLocaleDateString('es-ES', opts) + '</strong>';
+  }
+
+  function showError(msg) {
+    document.getElementById('loading').innerHTML = `<p style="color:#ef4444">${msg}</p>`;
+  }
+
+  loadData();
 </script>
 
 </body>
