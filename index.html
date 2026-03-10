@@ -331,7 +331,7 @@
 
       const real = toPercent(realRaw);
       const esp  = toPercent(espRaw);
-      const spi  = spiRaw !== null ? (spiRaw <= 1 ? spiRaw : spiRaw / 100) : (real && esp ? real / esp / 100 : null);
+      const spi  = spiRaw !== null ? (spiRaw > 1 ? spiRaw : spiRaw * 100) : (real && esp ? (real / esp) * 100 : null);
 
       renderCards(real, esp, spi);
 
@@ -355,17 +355,17 @@
 
     // SPI con color dinámico
     const spiVal = spi !== null ? spi : (real && esp ? real / esp * 100 : null);
-    const spiDisplay = spiVal !== null ? spiVal.toFixed(2).replace('.', ',') : 'N/D';
+    const spiDisplay = spiVal !== null ? spiVal.toFixed(2).replace('.', ',') + '%' : 'N/D';
     document.getElementById('val-spi').textContent = spiDisplay;
 
     const cardSpi = document.getElementById('card-spi');
     const lblSpi  = document.getElementById('spi-label');
     cardSpi.classList.remove('blue', 'yellow', 'green', 'red');
 
-    if (spiVal >= 0.95) {
+    if (spiVal >= 95) {
       cardSpi.classList.add('green');
       lblSpi.textContent = 'En tiempo';
-    } else if (spiVal >= 0.85) {
+    } else if (spiVal >= 85) {
       cardSpi.classList.add('yellow');
       lblSpi.textContent = 'Leve retraso';
     } else {
