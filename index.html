@@ -41,7 +41,7 @@
 
   .cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
   }
 
@@ -86,16 +86,19 @@
   .card.yellow::before { background: linear-gradient(90deg, #f06292, #e040fb); }
   .card.green::before  { background: linear-gradient(90deg, #26c6da, #00bcd4); }
   .card.red::before    { background: linear-gradient(90deg, #ef5350, #e040fb); }
+  .card.purple::before { background: linear-gradient(90deg, #7c4dff, #e040fb); }
 
   .card.blue::after   { background: #e040fb; }
   .card.yellow::after { background: #f06292; }
   .card.green::after  { background: #26c6da; }
   .card.red::after    { background: #ef5350; }
+  .card.purple::after { background: #7c4dff; }
 
   .card:hover.blue   { border-color: rgba(224,64,251,0.35); }
   .card:hover.yellow { border-color: rgba(240,98,146,0.35); }
   .card:hover.green  { border-color: rgba(38,198,218,0.35); }
   .card:hover.red    { border-color: rgba(239,83,80,0.35); }
+  .card:hover.purple { border-color: rgba(124,77,255,0.35); }
 
   .card-icon { display: none; }
 
@@ -122,6 +125,7 @@
   .card.yellow .card-value { color: #f06292; }
   .card.green  .card-value { color: #26c6da; }
   .card.red    .card-value { color: #ef5350; }
+  .card.purple .card-value { color: #7c4dff; }
 
   .progress-track {
     width: 100%;
@@ -143,6 +147,7 @@
   .card.yellow .progress-fill { background: linear-gradient(90deg, #f06292, #e040fb); }
   .card.green  .progress-fill { background: linear-gradient(90deg, #26c6da, #00bcd4); }
   .card.red    .progress-fill { background: linear-gradient(90deg, #ef5350, #e040fb); }
+  .card.purple .progress-fill { background: linear-gradient(90deg, #7c4dff, #e040fb); }
 
   .card-footer { display: none; }
   .card-status { display: none; }
@@ -251,6 +256,22 @@
       </div>
     </div>
 
+    <div class="card purple" id="card-count">
+      <div class="card-icon">📋</div>
+      <div class="card-label">Proyectos</div>
+      <div class="card-value" id="val-count">—</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="bar-count"></div>
+      </div>
+      <div class="card-footer">
+        <div class="card-status">
+          <div class="status-dot"></div>
+          <span>En portafolio</span>
+        </div>
+        <div class="card-projects">activos</div>
+      </div>
+    </div>
+
   </div>
 
   <div class="footer-row">
@@ -314,7 +335,20 @@
       const esp  = toPercent(espRaw);
       const spi  = spiRaw !== null ? (spiRaw > 1 ? spiRaw : spiRaw * 100) : (real && esp ? (real / esp) * 100 : null);
 
-      renderCards(real, esp, spi);
+      // Fetch project count
+      const res2 = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: 'https://api.notion.com/v1/databases/24d0a97eed8d81e99427e311c9f026aa/query',
+          token: `Bearer ${NOTION_TOKEN}`,
+          payload: { page_size: 100 }
+        })
+      });
+      const data2 = await res2.json();
+      const projectCount = data2.results ? data2.results.length : null;
+
+      renderCards(real, esp, spi, projectCount);
 
     } catch (err) {
       showError('Error conectando con Notion.');
@@ -322,7 +356,7 @@
     }
   }
 
-  function renderCards(real, esp, spi) {
+  function renderCards(real, esp, spi, projectCount) {
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('cards').style.display = 'grid';
 
@@ -354,11 +388,18 @@
       lblSpi.textContent = 'Retraso significativo';
     }
 
+    // Proyectos
+    if (projectCount !== null) {
+      document.getElementById('val-count').textContent = projectCount;
+      document.getElementById('card-count').style.display = '';
+    }
+
     // Animar barras
     setTimeout(() => {
       if (real !== null) document.getElementById('bar-real').style.width = Math.min(real, 100) + '%';
       if (esp  !== null) document.getElementById('bar-esp').style.width  = Math.min(esp,  100) + '%';
-      if (spiVal !== null) document.getElementById('bar-spi').style.width = Math.min(spiVal * 100, 100) + '%';
+      if (spiVal !== null) document.getElementById('bar-spi').style.width = Math.min(spiVal, 100) + '%';
+      if (projectCount !== null) document.getElementById('bar-count').style.width = Math.min(projectCount * 5, 100) + '%';
     }, 400);
 
     // Fecha
