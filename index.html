@@ -301,16 +301,35 @@
         return;
       }
 
+      console.log('Notion response:', JSON.stringify(data.results[0].properties, null, 2));
       const props = data.results[0].properties;
 
-      // Leer valores — ajusta los nombres si difieren
-      const realRaw = props['Avance real del Portafolio']?.rollup?.number ?? null;
-      const espRaw  = props['Avance Esperado']?.rollup?.number ?? null;
-      const spiRaw  = props['SPI Portafolio']?.formula?.number ?? null;
+      // Extraer número de cualquier tipo de propiedad Notion
+      function extractNum(prop) {
+        if (!prop) return null;
+        if (prop.type === 'rollup') {
+          const r = prop.rollup;
+          if (r.type === 'number') return r.number;
+          if (r.type === 'array' && r.array?.length > 0) {
+            const first = r.array[0];
+            return first.number ?? first.formula?.number ?? null;
+          }
+        }
+        if (prop.type === 'formula') return prop.formula?.number ?? null;
+        if (prop.type === 'number') return prop.number ?? null;
+        return null;
+      }
 
-      const real = realRaw !== null ? realRaw * 100 : null;
-      const esp  = espRaw  !== null ? espRaw  * 100 : null;
-      const spi  = spiRaw  !== null ? spiRaw       : (real && esp ? real / esp : null);
+      const realRaw = extractNum(props['Avance real del Portafolio']);
+      const espRaw  = extractNum(props['Avance Esperado']);
+      const spiRaw  = extractNum(props['SPI Portafolio']);
+
+      // Los rollups de % vienen como 0-1 o 0-100, detectar automaticamente
+      const toPercent = (v) => v !== null ? (v <= 1 ? v * 100 : v) : null;
+
+      const real = toPercent(realRaw);
+      const esp  = toPercent(espRaw);
+      const spi  = spiRaw !== null ? (spiRaw <= 1 ? spiRaw : spiRaw / 100) : (real && esp ? real / esp / 100 : null);
 
       renderCards(real, esp, spi);
 
