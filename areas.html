@@ -105,23 +105,37 @@
 
   .area-stats {
     display: flex;
-    align-items: center;
-    gap: 16px;
+    align-items: flex-end;
+    gap: 20px;
+  }
+
+  .area-stat-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .area-stat-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3a3d4a;
   }
 
   .area-count {
-    font-size: 11px;
-    color: #4a5068;
-    background: #1a1d26;
-    padding: 2px 8px;
-    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #6a6e82;
   }
 
   .area-pct {
     font-family: 'Syne', sans-serif;
     font-size: 13px;
     font-weight: 700;
-    min-width: 48px;
+    min-width: 52px;
     text-align: right;
   }
 
@@ -204,16 +218,7 @@
     <div id="chart" style="display:none">
       <div class="chart-header">
         <div class="chart-title">Proyectos por Área</div>
-        <div class="legend">
-          <div class="legend-item">
-            <div class="legend-dot" style="background:#e040fb"></div>
-            <span>% Avance Real</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:#1a1d26; border:1px solid #3a3d4a"></div>
-            <span>Proyectos</span>
-          </div>
-        </div>
+
       </div>
       <div class="area-rows" id="area-rows"></div>
     </div>
@@ -325,8 +330,14 @@
         <div class="area-meta">
           <div class="area-name">${area.name}</div>
           <div class="area-stats">
-            <div class="area-count">${area.count} ${area.count === 1 ? 'proyecto' : 'proyectos'}</div>
-            <div class="area-pct">${pctDisplay}</div>
+            <div class="area-stat-block">
+              <div class="area-stat-label">Proyectos</div>
+              <div class="area-count">${area.count}</div>
+            </div>
+            <div class="area-stat-block">
+              <div class="area-stat-label">% Avance Real</div>
+              <div class="area-pct">${pctDisplay}</div>
+            </div>
           </div>
         </div>
         <div class="bar-track">
