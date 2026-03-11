@@ -289,26 +289,8 @@
 
   async function loadData() {
     try {
-      const res = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: `https://api.notion.com/v1/pages/${PAGE_ID}`,
-          token: `Bearer ${NOTION_TOKEN}`,
-          payload: {}
-        })
-      });
-
-      const data = await res.json();
-
-      if (!data.properties) {
-        showError('No se encontraron datos.');
-        console.log('Notion error:', JSON.stringify(data));
-        return;
-      }
-
       // Leer directamente desde Proyectos — misma fuente que la tabla
-      const res2 = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
+      const res = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -317,9 +299,25 @@
           payload: { page_size: 100 }
         })
       });
-      const data2 = await res2.json();
-      const projects = data2.results || [];
+      const data = await res.json();
+
+
+
+      if (!data.results) {
+        showError('No se encontraron datos.');
+        console.log('Notion error:', JSON.stringify(data));
+        return;
+      }
+
+      const projects = data.results;
       const projectCount = projects.length;
+
+      // Log first project properties to verify field names
+      if (projects.length > 0) {
+        console.log('Propiedades primer proyecto:', JSON.stringify(Object.keys(projects[0].properties)));
+        console.log('% Real:', JSON.stringify(projects[0].properties['% Real']));
+        console.log('% Esperado:', JSON.stringify(projects[0].properties['% Esperado']));
+      }
 
       // Extraer valores de cada proyecto
       function getPct(prop) {
