@@ -323,7 +323,7 @@
 
       console.log('Rollups raw - real:', realRaw, 'esp:', espRaw, 'spi:', spiRaw);
 
-      const toPercent = v => v !== null ? Math.round(v <= 1 ? v * 100 : v) : null;
+      const toPercent = v => v !== null ? Math.floor((v <= 1 ? v * 100 : v) * 100) / 100 : null;
       const real = toPercent(realRaw);
       const esp  = toPercent(espRaw);
       const spi  = toPercent(spiRaw);
