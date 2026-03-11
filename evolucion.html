@@ -178,24 +178,7 @@
   .tooltip-date { color: #4a5068; font-size: 10px; margin-bottom: 2px; }
   .tooltip-val  { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
 
-  /* Trend badge */
-  .trend {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 16px;
-    padding-top: 14px;
-    border-top: 1px solid #1a1d26;
-  }
 
-  .trend-icon { font-size: 14px; }
-
-  .trend-text {
-    font-size: 11px;
-    color: #4a5068;
-  }
-
-  .trend-text strong { color: #c0c4d6; }
 
   .footer-row {
     margin-top: 14px;
@@ -246,7 +229,7 @@
         <div class="current-spi">
           <div class="current-spi-label">Último registro</div>
           <div class="current-spi-value" id="current-val">—</div>
-          <div class="current-spi-badge" id="current-badge">—</div>
+  
         </div>
       </div>
 
@@ -258,10 +241,7 @@
         </div>
       </div>
 
-      <div class="trend" id="trend-row">
-        <span class="trend-icon" id="trend-icon">—</span>
-        <span class="trend-text" id="trend-text">—</span>
-      </div>
+
     </div>
   </div>
 
@@ -359,10 +339,7 @@
     curVal.textContent = last.spi.toFixed(2).replace('.', ',') + '%';
     curVal.style.color = lbl.color;
 
-    const badge = document.getElementById('current-badge');
-    badge.textContent = lbl.text;
-    badge.style.background = lbl.bg;
-    badge.style.color = lbl.color;
+
 
     // Chart dimensions
     const W = 800, H = 220;
@@ -467,25 +444,25 @@
       svg.appendChild(circle);
     });
 
-    // Trend analysis
-    const trendIcon = document.getElementById('trend-icon');
-    const trendText = document.getElementById('trend-text');
-    const delta = last.spi - first.spi;
-    const deltaStr = (delta >= 0 ? '+' : '') + delta.toFixed(1).replace('.', ',') + '%';
+    // Value labels on each dot
+    points.forEach((p, i) => {
+      const cx = xScale(i);
+      const cy = yScale(p.spi);
+      const color = spiColor(p.spi);
+      const labelVal = p.spi.toFixed(2).replace('.', ',') + '%';
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', cx);
+      text.setAttribute('y', cy - 10);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('font-family', 'Syne, sans-serif');
+      text.setAttribute('font-size', '10');
+      text.setAttribute('font-weight', '700');
+      text.setAttribute('fill', color);
+      text.textContent = labelVal;
+      svg.appendChild(text);
+    });
 
-    if (points.length >= 2) {
-      const recent = points[points.length - 1].spi - points[points.length - 2].spi;
-      if (recent > 0.5) {
-        trendIcon.textContent = '📈';
-        trendText.innerHTML = `El portafolio <strong>mejora</strong> — SPI subió <strong>${deltaStr}</strong> desde el primer registro`;
-      } else if (recent < -0.5) {
-        trendIcon.textContent = '📉';
-        trendText.innerHTML = `El portafolio <strong>se deteriora</strong> — SPI bajó <strong>${deltaStr}</strong> desde el primer registro`;
-      } else {
-        trendIcon.textContent = '➡️';
-        trendText.innerHTML = `El portafolio <strong>se estabiliza</strong> — variación de <strong>${deltaStr}</strong> desde el primer registro`;
-      }
-    }
+
 
     // Date
     const now = new Date();
