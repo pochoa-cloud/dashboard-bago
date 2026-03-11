@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolución SPI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0f14;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+  }
+
+  .wrapper { width: 100%; max-width: 860px; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4a5068;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #1a1d26;
+  }
+
+  .chart-container {
+    background: #111318;
+    border: 1px solid #1a1d26;
+    border-radius: 16px;
+    padding: 28px 28px 20px;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .chart-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .chart-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #c0c4d6;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .chart-subtitle {
+    font-size: 11px;
+    color: #4a5068;
+    margin-top: 4px;
+  }
+
+  .current-spi {
+    text-align: right;
+  }
+
+  .current-spi-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3a3d4a;
+    margin-bottom: 2px;
+  }
+
+  .current-spi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  .current-spi-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 4px;
+  }
+
+  /* SVG chart */
+  .svg-wrap {
+    width: 100%;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    overflow: visible;
+  }
+
+  .grid-line {
+    stroke: #1a1d26;
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+  }
+
+  .axis-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    fill: #3a3d4a;
+  }
+
+  .meta-line {
+    stroke: #3a3d4a;
+    stroke-width: 1;
+    stroke-dasharray: 6 4;
+  }
+
+  .meta-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    fill: #3a3d4a;
+  }
+
+  .area-fill {
+    fill: url(#areaGrad);
+    opacity: 0.15;
+  }
+
+  .line-path {
+    fill: none;
+    stroke: url(#lineGrad);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .dot {
+    fill: #0d0f14;
+    stroke-width: 2.5;
+    cursor: pointer;
+    transition: r 0.2s;
+  }
+
+  .dot:hover { r: 6; }
+
+  /* Tooltip */
+  .tooltip {
+    position: absolute;
+    background: #1a1d26;
+    border: 1px solid #2a2d3a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: #c0c4d6;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+
+  .tooltip.visible { opacity: 1; }
+
+  .tooltip-date { color: #4a5068; font-size: 10px; margin-bottom: 2px; }
+  .tooltip-val  { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
+
+  /* Trend badge */
+  .trend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #1a1d26;
+  }
+
+  .trend-icon { font-size: 14px; }
+
+  .trend-text {
+    font-size: 11px;
+    color: #4a5068;
+  }
+
+  .trend-text strong { color: #c0c4d6; }
+
+  .footer-row {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-meta { font-size: 11px; color: #2a2d3a; }
+  .footer-meta strong { color: #3a3d4a; font-weight: 500; }
+
+  .loading {
+    text-align: center;
+    padding: 60px 40px;
+    color: #4a5068;
+    font-size: 13px;
+  }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid #1a1d26;
+    border-top-color: #e040fb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 10px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="section-label">Evolución del portafolio</div>
+
+  <div class="chart-container" id="chart-container">
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      Cargando histórico desde Notion...
+    </div>
+
+    <div id="chart" style="display:none">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">SPI Portafolio — Tendencia</div>
+          <div class="chart-subtitle" id="chart-subtitle">Seguimiento quincenal</div>
+        </div>
+        <div class="current-spi">
+          <div class="current-spi-label">Último registro</div>
+          <div class="current-spi-value" id="current-val">—</div>
+          <div class="current-spi-badge" id="current-badge">—</div>
+        </div>
+      </div>
+
+      <div class="svg-wrap">
+        <svg id="chart-svg" viewBox="0 0 800 220" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tooltip" id="tooltip">
+          <div class="tooltip-date" id="tt-date"></div>
+          <div class="tooltip-val" id="tt-val"></div>
+        </div>
+      </div>
+
+      <div class="trend" id="trend-row">
+        <span class="trend-icon" id="trend-icon">—</span>
+        <span class="trend-text" id="trend-text">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-row">
+    <div class="footer-meta">Portafolio Estratégico · <strong>Bagó Ecuador</strong></div>
+    <div class="footer-meta" id="last-update"></div>
+  </div>
+</div>
+
+<script>
+  const NOTION_TOKEN  = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const HISTORICO_DB  = '31f0a97eed8d80e5ad0dd78acb17999d';
+  const WORKER_URL    = 'https://royal-limit-9465.pochoa.workers.dev/';
+
+  async function loadData() {
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: `https://api.notion.com/v1/databases/${HISTORICO_DB}/query`,
+          token: `Bearer ${NOTION_TOKEN}`,
+          payload: {
+            sorts: [{ property: 'Fecha', direction: 'ascending' }],
+            page_size: 100
+          }
+        })
+      });
+
+      const data = await res.json();
+      if (!data.results) throw new Error('Sin resultados');
+
+      const points = [];
+
+      for (const page of data.results) {
+        const props = page.properties;
+
+        // Fecha
+        const fechaProp = props['Fecha'];
+        if (!fechaProp || !fechaProp.date?.start) continue;
+        const fecha = new Date(fechaProp.date.start);
+
+        // SPI
+        const spiProp = props['SPI'];
+        let spi = null;
+        if (spiProp?.type === 'number') spi = spiProp.number;
+        else if (spiProp?.type === 'formula') spi = spiProp.formula?.number;
+        if (spi === null) continue;
+
+        // Normalizar: si viene como 0.882 → 88.2, si ya es 88.2 → dejar
+        if (spi <= 1) spi = spi * 100;
+
+        points.push({ fecha, spi });
+      }
+
+      if (points.length === 0) {
+        document.getElementById('loading').innerHTML = '<p style="color:#4a5068">No hay datos en el histórico aún.</p>';
+        return;
+      }
+
+      renderChart(points);
+
+    } catch (err) {
+      document.getElementById('loading').innerHTML = '<p style="color:#ef5350">Error cargando datos.</p>';
+      console.error(err);
+    }
+  }
+
+  function formatFecha(d) {
+    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: '2-digit' });
+  }
+
+  function spiColor(v) {
+    if (v >= 95) return '#26c6da';
+    if (v >= 85) return '#e040fb';
+    return '#ef5350';
+  }
+
+  function spiLabel(v) {
+    if (v >= 95) return { text: 'En tiempo', bg: 'rgba(38,198,218,0.12)', color: '#26c6da' };
+    if (v >= 85) return { text: 'Leve retraso', bg: 'rgba(224,64,251,0.12)', color: '#e040fb' };
+    return { text: 'Retraso significativo', bg: 'rgba(239,83,80,0.12)', color: '#ef5350' };
+  }
+
+  function renderChart(points) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('chart').style.display = 'block';
+
+    const last = points[points.length - 1];
+    const first = points[0];
+
+    // Current SPI
+    const lbl = spiLabel(last.spi);
+    const curVal = document.getElementById('current-val');
+    curVal.textContent = last.spi.toFixed(2).replace('.', ',') + '%';
+    curVal.style.color = lbl.color;
+
+    const badge = document.getElementById('current-badge');
+    badge.textContent = lbl.text;
+    badge.style.background = lbl.bg;
+    badge.style.color = lbl.color;
+
+    // Chart dimensions
+    const W = 800, H = 220;
+    const padL = 44, padR = 20, padT = 16, padB = 36;
+    const chartW = W - padL - padR;
+    const chartH = H - padT - padB;
+
+    const spis = points.map(p => p.spi);
+    const minSpi = Math.max(0, Math.min(...spis) - 8);
+    const maxSpi = Math.min(110, Math.max(...spis) + 8);
+
+    const xScale = i => padL + (i / (points.length - 1 || 1)) * chartW;
+    const yScale = v => padT + chartH - ((v - minSpi) / (maxSpi - minSpi)) * chartH;
+
+    const svg = document.getElementById('chart-svg');
+    svg.innerHTML = '';
+
+    // Defs
+    svg.innerHTML = `
+      <defs>
+        <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ab47bc"/>
+          <stop offset="100%" stop-color="#e040fb"/>
+        </linearGradient>
+        <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#e040fb" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#e040fb" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+    `;
+
+    // Grid lines (horizontal)
+    const gridVals = [70, 80, 85, 90, 95, 100];
+    gridVals.forEach(v => {
+      if (v < minSpi || v > maxSpi) return;
+      const y = yScale(v);
+      const isTarget = v === 95;
+      svg.innerHTML += `
+        <line class="${isTarget ? 'meta-line' : 'grid-line'}" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}"/>
+        <text class="${isTarget ? 'meta-label' : 'axis-label'}" x="${padL - 6}" y="${y + 3.5}" text-anchor="end">${v}%</text>
+        ${isTarget ? `<text class="meta-label" x="${W - padR + 4}" y="${y + 3.5}" text-anchor="start">meta</text>` : ''}
+      `;
+    });
+
+    // X labels
+    points.forEach((p, i) => {
+      if (points.length > 6 && i % 2 !== 0 && i !== points.length - 1) return;
+      const x = xScale(i);
+      svg.innerHTML += `<text class="axis-label" x="${x}" y="${H - 6}" text-anchor="middle">${formatFecha(p.fecha)}</text>`;
+    });
+
+    // Area path
+    let areaPath = `M ${xScale(0)} ${yScale(minSpi)}`;
+    areaPath += ` L ${xScale(0)} ${yScale(points[0].spi)}`;
+    points.forEach((p, i) => {
+      if (i === 0) return;
+      areaPath += ` L ${xScale(i)} ${yScale(p.spi)}`;
+    });
+    areaPath += ` L ${xScale(points.length - 1)} ${yScale(minSpi)} Z`;
+    svg.innerHTML += `<path class="area-fill" d="${areaPath}"/>`;
+
+    // Line path
+    let linePath = `M ${xScale(0)} ${yScale(points[0].spi)}`;
+    points.forEach((p, i) => {
+      if (i === 0) return;
+      linePath += ` L ${xScale(i)} ${yScale(p.spi)}`;
+    });
+    svg.innerHTML += `<path class="line-path" d="${linePath}"/>`;
+
+    // Dots
+    points.forEach((p, i) => {
+      const cx = xScale(i);
+      const cy = yScale(p.spi);
+      const color = spiColor(p.spi);
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', cx);
+      circle.setAttribute('cy', cy);
+      circle.setAttribute('r', i === points.length - 1 ? 5 : 4);
+      circle.setAttribute('class', 'dot');
+      circle.setAttribute('stroke', color);
+      circle.style.fill = '#0d0f14';
+
+      circle.addEventListener('mouseenter', (e) => {
+        const tt = document.getElementById('tooltip');
+        document.getElementById('tt-date').textContent = formatFecha(p.fecha);
+        document.getElementById('tt-val').textContent = p.spi.toFixed(2).replace('.', ',') + '%';
+        document.getElementById('tt-val').style.color = color;
+        const wrap = document.querySelector('.svg-wrap');
+        const rect = wrap.getBoundingClientRect();
+        const svgRect = svg.getBoundingClientRect();
+        const scaleX = svgRect.width / W;
+        const scaleY = svgRect.height / H;
+        tt.style.left = (cx * scaleX - 40) + 'px';
+        tt.style.top  = (cy * scaleY - 52) + 'px';
+        tt.classList.add('visible');
+      });
+
+      circle.addEventListener('mouseleave', () => {
+        document.getElementById('tooltip').classList.remove('visible');
+      });
+
+      svg.appendChild(circle);
+    });
+
+    // Trend analysis
+    const trendIcon = document.getElementById('trend-icon');
+    const trendText = document.getElementById('trend-text');
+    const delta = last.spi - first.spi;
+    const deltaStr = (delta >= 0 ? '+' : '') + delta.toFixed(1).replace('.', ',') + '%';
+
+    if (points.length >= 2) {
+      const recent = points[points.length - 1].spi - points[points.length - 2].spi;
+      if (recent > 0.5) {
+        trendIcon.textContent = '📈';
+        trendText.innerHTML = `El portafolio <strong>mejora</strong> — SPI subió <strong>${deltaStr}</strong> desde el primer registro`;
+      } else if (recent < -0.5) {
+        trendIcon.textContent = '📉';
+        trendText.innerHTML = `El portafolio <strong>se deteriora</strong> — SPI bajó <strong>${deltaStr}</strong> desde el primer registro`;
+      } else {
+        trendIcon.textContent = '➡️';
+        trendText.innerHTML = `El portafolio <strong>se estabiliza</strong> — variación de <strong>${deltaStr}</strong> desde el primer registro`;
+      }
+    }
+
+    // Date
+    const now = new Date();
+    const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('last-update').innerHTML =
+      'Actualizado: <strong>' + now.toLocaleDateString('es-ES', opts) + '</strong>';
+    document.getElementById('chart-subtitle').textContent =
+      `${points.length} registros · seguimiento quincenal`;
+  }
+
+  loadData();
+</script>
+
+</body>
+</html>
