@@ -312,12 +312,20 @@
       const projects = data.results;
       const projectCount = projects.length;
 
-      // Log first project properties to verify field names
-      if (projects.length > 0) {
-        console.log('Propiedades primer proyecto:', JSON.stringify(Object.keys(projects[0].properties)));
-        console.log('% Real:', JSON.stringify(projects[0].properties['% Real']));
-        console.log('% Esperado:', JSON.stringify(projects[0].properties['% Esperado']));
+      // Debug: log all project values
+      let debugReal = [], debugEsp = [];
+      for (const page of projects) {
+        const p = page.properties;
+        const nombre = p['Nombre del proyecto']?.title?.[0]?.plain_text || p['Proyecto estratégico']?.title?.[0]?.plain_text || '?';
+        const r = p['% Real'];
+        const e = p['% Esperado'];
+        const rVal = r?.type === 'number' ? r.number : r?.type === 'formula' ? r.formula?.number : null;
+        const eVal = e?.type === 'number' ? e.number : e?.type === 'formula' ? e.formula?.number : null;
+        debugReal.push(nombre + ': ' + rVal);
+        debugEsp.push(nombre + ': ' + eVal);
       }
+      console.log('% Real por proyecto:', debugReal.join(' | '));
+      console.log('% Esperado por proyecto:', debugEsp.join(' | '));
 
       // Extraer valores de cada proyecto
       function getPct(prop) {
