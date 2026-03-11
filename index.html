@@ -289,8 +289,47 @@
 
   async function loadData() {
     try {
-      // Leer directamente desde Proyectos — misma fuente que la tabla
+      // Leer rollups directamente de la página Portafolio 2026
       const res = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: `https://api.notion.com/v1/pages/${PAGE_ID}`,
+          token: `Bearer ${NOTION_TOKEN}`,
+          payload: {}
+        })
+      });
+      const data = await res.json();
+
+      if (!data.properties) {
+        showError('No se encontraron datos.');
+        console.log('Notion error:', JSON.stringify(data));
+        return;
+      }
+
+      const props = data.properties;
+
+      function extractNum(prop) {
+        if (!prop) return null;
+        if (prop.type === 'rollup' && prop.rollup.type === 'number') return prop.rollup.number;
+        if (prop.type === 'formula') return prop.formula?.number ?? null;
+        if (prop.type === 'number') return prop.number ?? null;
+        return null;
+      }
+
+      const realRaw = extractNum(props['Avance real del Portafolio']);
+      const espRaw  = extractNum(props['Avance Esperado']);
+      const spiRaw  = extractNum(props['SPI Portafolio']);
+
+      console.log('Rollups raw - real:', realRaw, 'esp:', espRaw, 'spi:', spiRaw);
+
+      const toPercent = v => v !== null ? (v <= 1 ? v * 100 : v) : null;
+      const real = toPercent(realRaw);
+      const esp  = toPercent(espRaw);
+      const spi  = toPercent(spiRaw);
+
+      // Contar proyectos
+      const res2 = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -299,58 +338,8 @@
           payload: { page_size: 100 }
         })
       });
-      const data = await res.json();
-
-
-
-      if (!data.results) {
-        showError('No se encontraron datos.');
-        console.log('Notion error:', JSON.stringify(data));
-        return;
-      }
-
-      const projects = data.results;
-      const projectCount = projects.length;
-
-      // Debug: log all project values
-      let debugReal = [], debugEsp = [];
-      for (const page of projects) {
-        const p = page.properties;
-        const nombre = p['Nombre del proyecto']?.title?.[0]?.plain_text || p['Proyecto estratégico']?.title?.[0]?.plain_text || '?';
-        const r = p['% Real'];
-        const e = p['% Esperado ajustado'];
-        const rVal = r?.type === 'number' ? r.number : r?.type === 'formula' ? r.formula?.number : null;
-        const eVal = e?.type === 'number' ? e.number : e?.type === 'formula' ? e.formula?.number : null;
-        debugReal.push(nombre + ': ' + rVal);
-        debugEsp.push(nombre + ': ' + eVal);
-      }
-      console.log('% Real por proyecto:', debugReal.join(' | '));
-      console.log('% Esperado ajustado por proyecto:', debugEsp.join(' | '));
-
-      // Extraer valores de cada proyecto
-      function getPct(prop) {
-        if (!prop) return null;
-        let v = null;
-        if (prop.type === 'number') v = prop.number;
-        else if (prop.type === 'formula') v = prop.formula?.number ?? null;
-        else if (prop.type === 'percent') v = prop.number;
-        if (v === null) return null;
-        // Notion guarda porcentajes como 0-1 (ej: 0.71 = 71%)
-        return v <= 1 ? v * 100 : v;
-      }
-
-      let sumReal = 0, sumEsp = 0, countReal = 0, countEsp = 0;
-      for (const page of projects) {
-        const p = page.properties;
-        const r = getPct(p['% Real']);
-        const e = getPct(p['% Esperado ajustado']);
-        if (r !== null) { sumReal += r; countReal++; }
-        if (e !== null) { sumEsp  += e; countEsp++;  }
-      }
-
-      const real = countReal > 0 ? sumReal / countReal : null;
-      const esp  = countEsp  > 0 ? sumEsp  / countEsp  : null;
-      const spi  = (real !== null && esp !== null && esp > 0) ? (real / esp) * 100 : null;
+      const data2 = await res2.json();
+      const projectCount = data2.results ? data2.results.length : null;
 
       renderCards(real, esp, spi, projectCount);
 
