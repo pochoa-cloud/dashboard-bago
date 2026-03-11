@@ -15,10 +15,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px 24px;
+    padding: 20px 16px;
   }
 
-  .wrapper { width: 100%; max-width: 860px; }
+  .wrapper { width: 100%; max-width: 100%; }
 
   .section-label {
     font-size: 11px;
@@ -41,8 +41,8 @@
 
   .cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .card {
@@ -114,12 +114,13 @@
 
   .card-value {
     font-family: 'Syne', sans-serif;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 800;
     line-height: 1;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     letter-spacing: -0.02em;
     white-space: nowrap;
+    overflow: visible;
   }
 
   .card.blue   .card-value { color: #e040fb; }
@@ -306,37 +307,7 @@
         return;
       }
 
-      console.log('Notion response:', JSON.stringify(data.properties, null, 2));
-      const props = data.properties;
-
-      // Extraer número de cualquier tipo de propiedad Notion
-      function extractNum(prop) {
-        if (!prop) return null;
-        if (prop.type === 'rollup') {
-          const r = prop.rollup;
-          if (r.type === 'number') return r.number;
-          if (r.type === 'array' && r.array?.length > 0) {
-            const first = r.array[0];
-            return first.number ?? first.formula?.number ?? null;
-          }
-        }
-        if (prop.type === 'formula') return prop.formula?.number ?? null;
-        if (prop.type === 'number') return prop.number ?? null;
-        return null;
-      }
-
-      const realRaw = extractNum(props['Avance real del Portafolio']);
-      const espRaw  = extractNum(props['Avance Esperado']);
-      const spiRaw  = extractNum(props['SPI Portafolio']);
-
-      // Los rollups de % vienen como 0-1 o 0-100, detectar automaticamente
-      const toPercent = (v) => v !== null ? (v <= 1 ? v * 100 : v) : null;
-
-      const real = toPercent(realRaw);
-      const esp  = toPercent(espRaw);
-      const spi  = spiRaw !== null ? (spiRaw > 1 ? spiRaw : spiRaw * 100) : (real && esp ? (real / esp) * 100 : null);
-
-      // Fetch project count
+      // Leer directamente desde Proyectos — misma fuente que la tabla
       const res2 = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -347,7 +318,33 @@
         })
       });
       const data2 = await res2.json();
-      const projectCount = data2.results ? data2.results.length : null;
+      const projects = data2.results || [];
+      const projectCount = projects.length;
+
+      // Extraer valores de cada proyecto
+      function getPct(prop) {
+        if (!prop) return null;
+        let v = null;
+        if (prop.type === 'number') v = prop.number;
+        else if (prop.type === 'formula') v = prop.formula?.number ?? null;
+        else if (prop.type === 'percent') v = prop.number;
+        if (v === null) return null;
+        // Notion guarda porcentajes como 0-1 (ej: 0.71 = 71%)
+        return v <= 1 ? v * 100 : v;
+      }
+
+      let sumReal = 0, sumEsp = 0, countReal = 0, countEsp = 0;
+      for (const page of projects) {
+        const p = page.properties;
+        const r = getPct(p['% Real']);
+        const e = getPct(p['% Esperado']);
+        if (r !== null) { sumReal += r; countReal++; }
+        if (e !== null) { sumEsp  += e; countEsp++;  }
+      }
+
+      const real = countReal > 0 ? sumReal / countReal : null;
+      const esp  = countEsp  > 0 ? sumEsp  / countEsp  : null;
+      const spi  = (real !== null && esp !== null && esp > 0) ? (real / esp) * 100 : null;
 
       renderCards(real, esp, spi, projectCount);
 
@@ -360,6 +357,7 @@
   function renderCards(real, esp, spi, projectCount) {
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('cards').style.display = 'grid';
+    setTimeout(fitCardValues, 100);
 
     // Avance Real
     document.getElementById('val-real').textContent =
@@ -415,6 +413,29 @@
   }
 
   loadData();
+
+  // Auto-fit font size to card width
+  function fitCardValues() {
+    document.querySelectorAll('.card-value').forEach(el => {
+      el.style.fontSize = '22px';
+      const card = el.closest('.card');
+      if (!card) return;
+      const available = card.clientWidth - 28; // padding
+      let size = 22;
+      while (el.scrollWidth > available && size > 11) {
+        size -= 0.5;
+        el.style.fontSize = size + 'px';
+      }
+    });
+  }
+
+  // Run after data loads and on resize
+  const origRender = renderCards;
+  window.addEventListener('resize', fitCardValues);
+  // Patch renderCards to call fitCardValues after render
+  const _orig = renderCards;
+  window.renderCardsOrig = _orig;
+  setTimeout(fitCardValues, 800);
 </script>
 
 </body>
