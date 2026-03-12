@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semáforo Portafolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0b0f;
+    font-family: 'DM Sans', sans-serif;
+    color: #e8eaf0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: #111318;
+    border: 1px solid #1a1d26;
+    border-radius: 16px;
+    padding: 28px 32px;
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 0.2s forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .semaforo-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .semaforo-ring {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  .semaforo-ring::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(var(--ring-color) var(--ring-pct), #1a1d26 0%);
+  }
+
+  .semaforo-inner {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: #0a0b0f;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .semaforo-icon { font-size: 28px; line-height: 1; }
+
+  .info { flex: 1; }
+
+  .info-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #4a5068;
+    margin-bottom: 6px;
+  }
+
+  .info-estado {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .info-desc {
+    font-size: 12px;
+    color: #6a6e82;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .spi-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .spi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .spi-bar-track {
+    flex: 1; height: 4px;
+    background: #1a1d26;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .spi-bar-fill {
+    height: 100%; border-radius: 4px;
+    width: 0%;
+    transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  .meta-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid #1a1d26;
+    border-top-color: #e040fb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div id="loading" style="width:100%;text-align:center"><div class="spinner"></div></div>
+  <div id="content" style="display:contents">
+    <div class="semaforo-wrap">
+      <div class="semaforo-ring" id="ring">
+        <div class="semaforo-inner">
+          <div class="semaforo-icon" id="icon">⏳</div>
+        </div>
+      </div>
+    </div>
+    <div class="info" style="display:none" id="info-block">
+      <div class="info-label">Salud del Portafolio Estratégico</div>
+      <div class="info-estado" id="estado-text">—</div>
+      <div class="info-desc" id="desc-text">—</div>
+      <div class="spi-row">
+        <div class="spi-value" id="spi-val">—</div>
+        <div class="spi-bar-track"><div class="spi-bar-fill" id="spi-bar"></div></div>
+        <div class="meta-tag" id="meta-tag">Meta: 95%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TOKEN  = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const WORKER = 'https://royal-limit-9465.pochoa.workers.dev/';
+  const PAGE_ID = '31a0a97eed8d8019b154fd5b94712b14';
+
+  async function api(url, payload = {}) {
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, token: `Bearer ${TOKEN}`, payload })
+    });
+    return res.json();
+  }
+
+  async function load() {
+    try {
+      const data = await api(`https://api.notion.com/v1/pages/${PAGE_ID}`);
+      const props = data.properties;
+
+      function exNum(prop) {
+        if (!prop) return null;
+        if (prop.type === 'rollup' && prop.rollup.type === 'number') return prop.rollup.number;
+        if (prop.type === 'formula') return prop.formula?.number ?? null;
+        if (prop.type === 'number') return prop.number ?? null;
+        return null;
+      }
+
+      const spiRaw = exNum(props['SPI Portafolio']);
+      const spi = spiRaw !== null ? (spiRaw <= 1 ? spiRaw * 100 : spiRaw) : null;
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('info-block').style.display = 'block';
+
+      let color, icon, estado, desc, ringPct;
+
+      if (spi === null) {
+        color = '#4a5068'; icon = '❓'; estado = 'Sin datos'; desc = 'No se pudo calcular el SPI.'; ringPct = 0;
+      } else if (spi >= 95) {
+        color = '#26c6da'; icon = '✅'; estado = 'En buen camino';
+        desc = 'El portafolio avanza según lo planificado. Mantener el ritmo actual.';
+        ringPct = Math.min(spi, 100);
+      } else if (spi >= 85) {
+        color = '#ffa726'; icon = '⚠️'; estado = 'Atención requerida';
+        desc = 'El portafolio presenta retrasos moderados. Se recomienda revisión de proyectos críticos.';
+        ringPct = spi;
+      } else {
+        color = '#ef5350'; icon = '🔴'; estado = 'En riesgo';
+        desc = 'El portafolio está significativamente retrasado. Se requiere acción inmediata.';
+        ringPct = spi;
+      }
+
+      const ring = document.getElementById('ring');
+      ring.style.setProperty('--ring-color', color);
+      ring.style.setProperty('--ring-pct', ringPct + '%');
+
+      document.getElementById('icon').textContent = icon;
+      document.getElementById('estado-text').textContent = estado;
+      document.getElementById('estado-text').style.color = color;
+      document.getElementById('desc-text').textContent = desc;
+
+      const spiStr = spi !== null ? spi.toFixed(2).replace('.', ',') + '%' : '—';
+      document.getElementById('spi-val').textContent = 'SPI ' + spiStr;
+      document.getElementById('spi-val').style.color = color;
+
+      const metaTag = document.getElementById('meta-tag');
+      metaTag.style.background = color + '22';
+      metaTag.style.color = color;
+
+      setTimeout(() => {
+        document.getElementById('spi-bar').style.background = color;
+        document.getElementById('spi-bar').style.width = Math.min(spi ?? 0, 100) + '%';
+      }, 300);
+
+    } catch(e) { console.error(e); }
+  }
+
+  load();
+</script>
+</body>
+</html>
