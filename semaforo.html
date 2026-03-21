@@ -4,17 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Semáforo Portafolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: #0a0b0f;
-    font-family: 'DM Sans', sans-serif;
-    color: #e8eaf0;
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 100vh;
     padding: 24px;
   }
 
@@ -25,7 +23,7 @@
     padding: 28px 36px;
     display: inline-flex;
     align-items: center;
-    gap: 32px;
+    gap: 24px;
     opacity: 0;
     animation: fadeIn 0.5s ease 0.2s forwards;
   }
@@ -35,7 +33,6 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* DONUT SVG */
   .donut-wrap {
     position: relative;
     width: 100px;
@@ -48,18 +45,9 @@
     transform: rotate(-90deg);
   }
 
-  .donut-bg    { fill: none; stroke: #1a1d26; }
-  .donut-meta  { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1); }
-  .donut-spi   { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1) 0.1s; }
-
-  /* VALUES */
-  .values { display: flex; flex-direction: column; gap: 10px; }
-
-  .val-row {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
+  .donut-bg   { fill: none; stroke: #1a1d26; }
+  .donut-outer { fill: none; stroke: #66bb6a; stroke-linecap: round; }
+  .donut-inner { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1); }
 
   .val-label {
     font-size: 9px;
@@ -67,28 +55,14 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #4a5068;
+    margin-bottom: 4px;
   }
 
   .val-number {
     font-family: 'Syne', sans-serif;
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 800;
     line-height: 1;
-  }
-
-  .val-meta {
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    color: #26c6da;
-    line-height: 1;
-  }
-
-  .divider {
-    width: 1px;
-    height: 32px;
-    background: #1a1d26;
-    align-self: center;
   }
 
   .spinner {
@@ -97,54 +71,34 @@
     border-top-color: #e040fb;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
-    margin: 0 auto;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-
 <div class="card">
-  <div id="loading" style="padding:20px"><div class="spinner"></div></div>
+  <div id="loading"><div class="spinner"></div></div>
 
-  <div id="main" style="display:none; contents: contents">
-
-    <!-- DONUT -->
+  <div id="main" style="display:none; align-items:center; gap:24px">
     <div class="donut-wrap">
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <!-- BG rings -->
+        <!-- BG tracks -->
         <circle class="donut-bg" cx="50" cy="50" r="40" stroke-width="7"/>
-        <circle class="donut-bg" cx="50" cy="50" r="28" stroke-width="7"/>
-
-        <!-- META ring (outer) - always cyan at 95% -->
-        <circle class="donut-meta" id="ring-meta"
-          cx="50" cy="50" r="40" stroke-width="7"
-          stroke="#26c6da"
-          stroke-dasharray="251.33"
-          stroke-dashoffset="251.33"/>
-
-        <!-- SPI ring (inner) - color dinámico -->
-        <circle class="donut-spi" id="ring-spi"
-          cx="50" cy="50" r="28" stroke-width="7"
-          stroke="#ef5350"
-          stroke-dasharray="175.93"
-          stroke-dashoffset="175.93"/>
+        <circle class="donut-bg" cx="50" cy="50" r="27" stroke-width="7"/>
+        <!-- Outer = 100% verde -->
+        <circle class="donut-outer" cx="50" cy="50" r="40" stroke-width="7"
+          stroke-dasharray="251.33" stroke-dashoffset="0"/>
+        <!-- Inner = SPI dinámico -->
+        <circle class="donut-inner" id="ring-spi"
+          cx="50" cy="50" r="27" stroke-width="7"
+          stroke-dasharray="169.65" stroke-dashoffset="169.65"/>
       </svg>
     </div>
 
-    <!-- VALUES -->
-    <div class="values">
-      <div class="val-row">
-        <div class="val-label">SPI Portafolio</div>
-        <div class="val-number" id="spi-num">—</div>
-      </div>
-      <div class="divider"></div>
-      <div class="val-row">
-        <div class="val-label">Meta</div>
-        <div class="val-meta">95,00%</div>
-      </div>
+    <div>
+      <div class="val-label">SPI Portafolio</div>
+      <div class="val-number" id="spi-num">—</div>
     </div>
-
   </div>
 </div>
 
@@ -152,7 +106,6 @@
   const TOKEN   = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
   const WORKER  = 'https://royal-limit-9465.pochoa.workers.dev/';
   const PAGE_ID = '31a0a97eed8d8019b154fd5b94712b14';
-  const META    = 95;
 
   async function api(url, payload = {}) {
     const res = await fetch(WORKER, {
@@ -186,35 +139,22 @@
       const spi = spiRaw !== null ? (spiRaw <= 1 ? spiRaw * 100 : spiRaw) : null;
 
       document.getElementById('loading').style.display = 'none';
-      document.getElementById('main').style.display = 'contents';
+      const main = document.getElementById('main');
+      main.style.display = 'flex';
 
       if (spi === null) return;
 
       const color = spiColor(spi);
 
-      // SPI number
       document.getElementById('spi-num').textContent = spi.toFixed(2).replace('.', ',') + '%';
       document.getElementById('spi-num').style.color = color;
 
-      // Rings
-      // Outer ring = META (95%) — always cyan
-      // circumference r=40 → 2π×40 = 251.33
-      const C_OUTER = 251.33;
-      const metaPct = META / 100;
-      const metaOffset = C_OUTER - (C_OUTER * metaPct);
-      document.getElementById('ring-meta').setAttribute('stroke', '#26c6da');
+      const C = 169.65;
+      const offset = C - (C * Math.min(spi, 100) / 100);
+      const ring = document.getElementById('ring-spi');
+      ring.setAttribute('stroke', color);
 
-      // Inner ring = SPI — color dinámico
-      // circumference r=28 → 2π×28 = 175.93
-      const C_INNER = 175.93;
-      const spiPct  = Math.min(spi, 100) / 100;
-      const spiOffset = C_INNER - (C_INNER * spiPct);
-      document.getElementById('ring-spi').setAttribute('stroke', color);
-
-      setTimeout(() => {
-        document.getElementById('ring-meta').style.strokeDashoffset = metaOffset;
-        document.getElementById('ring-spi').style.strokeDashoffset  = spiOffset;
-      }, 300);
+      setTimeout(() => { ring.style.strokeDashoffset = offset; }, 300);
 
     } catch(e) { console.error(e); }
   }
