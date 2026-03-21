@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estados Portafolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0b0f;
+    font-family: 'DM Sans', sans-serif;
+    color: #e8eaf0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: #111318;
+    border: 1px solid #1a1d26;
+    border-radius: 16px;
+    padding: 24px 28px;
+    width: 100%;
+    max-width: 620px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 0.2s forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #4a5068;
+    margin-bottom: 20px;
+  }
+
+  .estados {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .estado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .estado-donut {
+    position: relative;
+    width: 64px;
+    height: 64px;
+  }
+
+  .estado-donut svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .donut-bg  { fill: none; stroke: #1a1d26; stroke-width: 6; }
+  .donut-arc { fill: none; stroke-width: 6; stroke-linecap: round;
+               transition: stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1); }
+
+  .estado-count {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .estado-name {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #6a6e82;
+    text-align: center;
+  }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid #1a1d26;
+    border-top-color: #e040fb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 20px auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-label">Proyectos por estado</div>
+  <div id="loading"><div class="spinner"></div></div>
+  <div class="estados" id="estados" style="display:none"></div>
+</div>
+
+<script>
+  const TOKEN   = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const WORKER  = 'https://royal-limit-9465.pochoa.workers.dev/';
+  const PROJ_DB = '24d0a97eed8d81e99427e311c9f026aa';
+
+  const ESTADOS = [
+    { key: 'Planificación', label: 'Planificación', color: '#42a5f5' },
+    { key: 'En curso',      label: 'En curso',      color: '#ffa726' },
+    { key: 'Hecho',         label: 'Hecho',         color: '#66bb6a' },
+    { key: 'En pausa',      label: 'En pausa',      color: '#ab47bc' },
+    { key: 'Cancelado',     label: 'Cancelado',     color: '#ef5350' },
+  ];
+
+  async function api(url, payload = {}) {
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, token: `Bearer ${TOKEN}`, payload })
+    });
+    return res.json();
+  }
+
+  async function load() {
+    try {
+      const data = await api(`https://api.notion.com/v1/databases/${PROJ_DB}/query`, { page_size: 100 });
+      const projects = data.results || [];
+      const total = projects.length;
+
+      // count per estado
+      const counts = {};
+      ESTADOS.forEach(e => counts[e.key] = 0);
+
+      projects.forEach(page => {
+        const p = page.properties;
+        const estado = p['Estado']?.status?.name ?? p['Estado']?.select?.name ?? '';
+        // fuzzy match
+        const match = ESTADOS.find(e => estado.toLowerCase().includes(e.key.toLowerCase()));
+        if (match) counts[match.key]++;
+      });
+
+      document.getElementById('loading').style.display = 'none';
+      const container = document.getElementById('estados');
+      container.style.display = 'grid';
+
+      const C = 2 * Math.PI * 24; // r=24 → circunferencia
+
+      ESTADOS.forEach(e => {
+        const count = counts[e.key];
+        const pct   = total > 0 ? count / total : 0;
+        const offset = C - C * pct;
+
+        const div = document.createElement('div');
+        div.className = 'estado';
+        div.innerHTML = `
+          <div class="estado-donut">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+              <circle class="donut-bg" cx="32" cy="32" r="24"/>
+              <circle class="donut-arc" id="arc-${e.key.replace(/\s/g,'')}"
+                cx="32" cy="32" r="24"
+                stroke="${e.color}"
+                stroke-dasharray="${C}"
+                stroke-dashoffset="${C}"/>
+            </svg>
+            <div class="estado-count" style="color:${e.color}">${count}</div>
+          </div>
+          <div class="estado-name" style="color:${e.color}88">${e.label}</div>
+        `;
+        container.appendChild(div);
+
+        setTimeout(() => {
+          const arc = document.getElementById(`arc-${e.key.replace(/\s/g,'')}`);
+          if (arc) arc.style.strokeDashoffset = offset;
+        }, 400);
+      });
+
+    } catch(err) { console.error(err); }
+  }
+
+  load();
+</script>
+</body>
+</html>
