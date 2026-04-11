@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SPI por Responsable · Portafolio Táctico 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:      #0a0b0f;
+    --surface: #111318;
+    --border:  #1a1d26;
+    --text:    #e8eaf0;
+    --muted:   #4a5068;
+    --magenta: #e040fb;
+    --cyan:    #26c6da;
+    --yellow:  #ffa726;
+    --red:     #ef5350;
+    --green:   #66bb6a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    padding: 24px;
+    min-height: 100vh;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-label {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 24px;
+  }
+  .footer {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-top: 24px;
+  }
+  .footer-brand { font-size: 10px; color: var(--muted); }
+  .footer-brand span { color: var(--magenta); }
+  .footer-date { font-size: 10px; color: var(--muted); }
+
+  /* ── RESPONSABLE ROW ── */
+  .resp-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 80px 80px 60px;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .resp-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .resp-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--text); letter-spacing: 0.5px;
+  }
+  .resp-projects {
+    font-size: 10px; color: var(--muted);
+    margin-top: 2px; letter-spacing: 0.5px;
+  }
+
+  .bar-wrap {
+    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px; overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%; border-radius: 8px;
+    width: 0;
+    transition: width 1.3s cubic-bezier(.4,0,.2,1);
+  }
+
+  .resp-spi {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; font-weight: 800;
+    text-align: right; letter-spacing: -0.5px;
+  }
+  .resp-real {
+    font-size: 12px; color: var(--muted);
+    text-align: right;
+  }
+  .resp-badge {
+    display: inline-block;
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    text-align: center;
+  }
+
+  /* ── HEADER ROW ── */
+  .header-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 80px 80px 60px;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-cell {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .header-cell.right { text-align: right; }
+
+  /* ── LOADER ── */
+  .loader-wrap {
+    display: flex; align-items: center;
+    justify-content: center; min-height: 120px;
+  }
+  .loader-ring {
+    width: 28px; height: 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--magenta);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-msg { color: var(--red); font-size: 12px; text-align: center; padding: 20px; }
+
+  @media (max-width: 600px) {
+    .resp-row, .header-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .bar-wrap { display: none; }
+    .header-cell:nth-child(2) { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-label">SPI por Responsable · Portafolio Táctico</div>
+
+  <div id="loader" class="loader-wrap"><div class="loader-ring"></div></div>
+
+  <div id="content" style="display:none">
+    <div class="header-row">
+      <div class="header-cell">Responsable</div>
+      <div class="header-cell">Desempeño</div>
+      <div class="header-cell right">% Real</div>
+      <div class="header-cell right">SPI</div>
+      <div class="header-cell right">Estado</div>
+    </div>
+    <div id="rows"></div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand">Portafolio Táctico · <span>Bagó Ecuador</span></div>
+    <div class="footer-date" id="footerDate"></div>
+  </div>
+</div>
+
+<script>
+  const TOKEN  = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const WORKER = 'https://royal-limit-9465.pochoa.workers.dev/';
+  const DB_ID  = '3210a97eed8d80628599c65e6b0b4ed1';
+
+  // Paleta de colores por responsable (rotativa)
+  const PALETTE = [
+    '#e040fb', '#26c6da', '#ffa726', '#66bb6a',
+    '#7c4dff', '#f06292', '#ef5350', '#80cbc4'
+  ];
+
+  async function api(url, payload = {}) {
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, token: `Bearer ${TOKEN}`, payload })
+    });
+    return res.json();
+  }
+
+  function getNum(prop) {
+    if (!prop) return null;
+    if (prop.type === 'number')  return prop.number ?? null;
+    if (prop.type === 'formula') return prop.formula?.number ?? null;
+    if (prop.type === 'rollup')  return prop.rollup?.number  ?? null;
+    return null;
+  }
+
+  function getSelect(prop) {
+    if (!prop) return null;
+    if (prop.type === 'select') return prop.select?.name ?? null;
+    if (prop.type === 'multi_select') return prop.multi_select?.[0]?.name ?? null;
+    return null;
+  }
+
+  function spiColor(v) {
+    if (v >= 0.90) return '#26c6da';
+    if (v >= 0.80) return '#ffa726';
+    return '#ef5350';
+  }
+
+  function spiBadge(v) {
+    if (v >= 0.90) return { label: 'OK',      bg: 'rgba(38,198,218,0.15)',  color: '#26c6da' };
+    if (v >= 0.80) return { label: 'Atención', bg: 'rgba(255,167,38,0.15)',  color: '#ffa726' };
+    return           { label: 'Riesgo',    bg: 'rgba(239,83,80,0.15)',   color: '#ef5350' };
+  }
+
+  function fmt(val) {
+    if (val == null) return '—';
+    const pct = val <= 1 ? val * 100 : val;
+    return pct.toFixed(1) + '%';
+  }
+
+  async function load() {
+    try {
+      const data  = await api(
+        `https://api.notion.com/v1/databases/${DB_ID}/query`,
+        { page_size: 100 }
+      );
+      const pages = data.results || [];
+      if (!pages.length) throw new Error('Sin proyectos');
+
+      // Agrupar por responsable
+      const respMap = {};
+      pages.forEach(p => {
+        const resp     = getSelect(p.properties['Responsable 1']) || 'Sin asignar';
+        const real     = getNum(p.properties['% Real']);
+        const esperado = getNum(p.properties['% Esperado']);
+        if (!respMap[resp]) respMap[resp] = { count: 0, sumReal: 0, sumEsp: 0 };
+        respMap[resp].count++;
+        if (real     != null) respMap[resp].sumReal += real;
+        if (esperado != null) respMap[resp].sumEsp  += esperado;
+      });
+
+      // Calcular SPI por responsable y ordenar descendente
+      const resps = Object.entries(respMap).map(([name, d]) => {
+        const avgReal = d.count ? d.sumReal / d.count : 0;
+        const avgEsp  = d.count ? d.sumEsp  / d.count : 0;
+        const spi     = avgEsp > 0 ? avgReal / avgEsp : 0;
+        return { name, count: d.count, avgReal, spi };
+      }).sort((a, b) => b.spi - a.spi);
+
+      const maxSPI = Math.max(...resps.map(r => r.spi), 0.01);
+
+      // Renderizar filas
+      let html = '';
+      resps.forEach((r, i) => {
+        const color    = PALETTE[i % PALETTE.length];
+        const sc       = spiColor(r.spi);
+        const badge    = spiBadge(r.spi);
+        const barWidth = (r.spi / maxSPI) * 100;
+
+        html += `
+          <div class="resp-row">
+            <div>
+              <div class="resp-name">${r.name}</div>
+              <div class="resp-projects">${r.count} proyecto${r.count !== 1 ? 's' : ''}</div>
+            </div>
+            <div class="bar-wrap">
+              <div class="bar-fill" style="background:${color}" data-width="${barWidth}%"></div>
+            </div>
+            <div class="resp-real">${fmt(r.avgReal)}</div>
+            <div class="resp-spi" style="color:${sc}">${r.spi.toFixed(2)}</div>
+            <div>
+              <span class="resp-badge" style="background:${badge.bg}; color:${badge.color}">
+                ${badge.label}
+              </span>
+            </div>
+          </div>`;
+      });
+
+      document.getElementById('rows').innerHTML = html;
+
+      const now = new Date();
+      document.getElementById('footerDate').textContent =
+        'Actualizado: ' + now.toLocaleDateString('es-EC', { day:'2-digit', month:'short', year:'numeric' }) +
+        ' · ' + now.toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit' });
+
+      document.getElementById('loader').style.display  = 'none';
+      document.getElementById('content').style.display = 'block';
+
+      // Animar barras
+      setTimeout(() => {
+        document.querySelectorAll('.bar-fill[data-width]').forEach(el => {
+          el.style.width = el.getAttribute('data-width');
+        });
+      }, 200);
+
+    } catch(e) {
+      console.error(e);
+      document.getElementById('loader').innerHTML =
+        '<div class="error-msg">No se pudo conectar con Notion.</div>';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
