@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gantt por Responsable · Bagó Ecuador 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:      #0a0b0f;
+    --surface: #111318;
+    --border:  #1a1d26;
+    --text:    #e8eaf0;
+    --muted:   #4a5068;
+    --magenta: #e040fb;
+    --cyan:    #26c6da;
+    --yellow:  #ffa726;
+    --red:     #ef5350;
+    --green:   #66bb6a;
+    --violet:  #7c4dff;
+    --pink:    #f06292;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; font-weight: 700;
+    color: var(--text);
+  }
+
+  .card-label {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 4px;
+  }
+
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    align-items: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; color: var(--muted);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 3px;
+  }
+
+  /* ── GANTT ── */
+  .gantt-wrap { overflow-x: auto; }
+
+  .gantt-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+  }
+
+  /* Header meses */
+  .gantt-header-row th {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0 12px 0;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .gantt-header-row th.col-name {
+    text-align: left;
+    padding-left: 0;
+    width: 180px;
+    min-width: 180px;
+  }
+  .gantt-header-row th.col-tipo {
+    width: 60px; min-width: 60px;
+    text-align: center;
+  }
+
+  /* Separator responsable */
+  .resp-separator td {
+    padding: 16px 0 8px 0;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .resp-separator .resp-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .resp-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .resp-count {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; font-weight: 400;
+    color: var(--muted); margin-left: 4px;
+  }
+
+  /* Project row */
+  .proj-row td {
+    padding: 5px 0;
+    vertical-align: middle;
+  }
+  .proj-row:last-child td { padding-bottom: 12px; }
+
+  .proj-name {
+    font-size: 11px; color: var(--text);
+    white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 175px;
+    padding-right: 8px;
+  }
+
+  .proj-tipo {
+    text-align: center;
+  }
+  .tipo-badge {
+    display: inline-block;
+    padding: 2px 6px; border-radius: 4px;
+    font-size: 8px; font-weight: 600;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .tipo-e { background: rgba(224,64,251,0.15); color: var(--magenta); }
+  .tipo-t { background: rgba(38,198,218,0.15); color: var(--cyan); }
+
+  /* Celda de timeline */
+  .cell-timeline { position: relative; height: 28px; }
+
+  /* Barra */
+  .bar {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    height: 14px; border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.4s ease, width 0s;
+    display: flex; align-items: center;
+    overflow: hidden;
+    cursor: default;
+  }
+  .bar.visible { opacity: 1; }
+  .bar-label {
+    font-size: 8px; font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    white-space: nowrap;
+    padding: 0 5px;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* Hoy */
+  .today-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--yellow);
+    opacity: 0.6;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Grid lines */
+  .month-grid {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border);
+    opacity: 0.5;
+  }
+
+  /* Footer */
+  .footer {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap; gap: 8px;
+  }
+  .footer-brand { font-size: 10px; color: var(--muted); }
+  .footer-brand span { color: var(--magenta); }
+  .footer-date { font-size: 10px; color: var(--muted); }
+
+  /* Loader */
+  .loader-wrap {
+    display: flex; align-items: center;
+    justify-content: center; min-height: 200px;
+  }
+  .loader-ring {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--magenta);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-msg { color: var(--red); font-size:13px; text-align:center; padding:20px; }
+
+  /* Tooltip */
+  .tooltip {
+    position: fixed;
+    background: #1e2130;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    pointer-events: none;
+    z-index: 100;
+    display: none;
+    max-width: 220px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .tooltip-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 700;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .tooltip-row {
+    display: flex; justify-content: space-between;
+    gap: 12px; color: var(--muted);
+    margin-bottom: 3px; font-size: 10px;
+  }
+  .tooltip-row span:last-child { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-name" id="tt-name"></div>
+  <div class="tooltip-row"><span>Inicio</span><span id="tt-start"></span></div>
+  <div class="tooltip-row"><span>Fin</span><span id="tt-end"></span></div>
+  <div class="tooltip-row"><span>Tipo</span><span id="tt-tipo"></span></div>
+  <div class="tooltip-row"><span>SPI</span><span id="tt-spi"></span></div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-label">Gestión de Capacidad · Bagó Ecuador</div>
+      <div class="card-title">Línea de Tiempo por Responsable</div>
+    </div>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--magenta)"></div>Estratégico
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--cyan)"></div>Táctico
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--yellow); width:2px; height:14px; border-radius:1px"></div>Hoy
+      </div>
+    </div>
+  </div>
+
+  <div id="loader" class="loader-wrap"><div class="loader-ring"></div></div>
+  <div id="ganttWrap" class="gantt-wrap" style="display:none">
+    <table class="gantt-table" id="ganttTable"></table>
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand">Portafolio Estratégico + Táctico · <span>Bagó Ecuador</span></div>
+    <div class="footer-date" id="footerDate"></div>
+  </div>
+</div>
+
+<script>
+  const TOKEN    = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const WORKER   = 'https://royal-limit-9465.pochoa.workers.dev/';
+  const DB_ESTR  = '24d0a97eed8d81e99427e311c9f026aa'; // Proyectos Estratégicos
+  const DB_TACT  = '3210a97eed8d80628599c65e6b0b4ed1'; // Proyectos Tácticos
+
+  const RESP_COLORS = [
+    '#e040fb','#26c6da','#66bb6a','#ffa726',
+    '#7c4dff','#f06292','#80cbc4','#ffcc02'
+  ];
+
+  const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+  async function api(url, payload = {}) {
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, token: `Bearer ${TOKEN}`, payload })
+    });
+    return res.json();
+  }
+
+  function getSelect(prop) {
+    if (!prop) return null;
+    if (prop.type === 'select') return prop.select?.name ?? null;
+    if (prop.type === 'multi_select') return prop.multi_select?.[0]?.name ?? null;
+    return null;
+  }
+
+  function getTitle(prop) {
+    if (!prop) return 'Sin nombre';
+    if (prop.type === 'title') return prop.title?.[0]?.plain_text ?? 'Sin nombre';
+    return 'Sin nombre';
+  }
+
+  function getDates(prop) {
+    if (!prop || prop.type !== 'date') return { start: null, end: null };
+    return {
+      start: prop.date?.start ? new Date(prop.date.start) : null,
+      end:   prop.date?.end   ? new Date(prop.date.end)   : null
+    };
+  }
+
+  function getNum(prop) {
+    if (!prop) return null;
+    if (prop.type === 'number')  return prop.number ?? null;
+    if (prop.type === 'formula') return prop.formula?.number ?? null;
+    if (prop.type === 'rollup')  return prop.rollup?.number  ?? null;
+    return null;
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return d.toLocaleDateString('es-EC', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  async function loadDB(dbId, tipo) {
+    const data  = await api(`https://api.notion.com/v1/databases/${dbId}/query`, { page_size: 100 });
+    const pages = data.results || [];
+    return pages.map(p => {
+      const dates = getDates(p.properties['Fechas']);
+      return {
+        name:        getTitle(p.properties['Nombre del proyecto'] || p.properties['Name']),
+        responsable: getSelect(p.properties['Responsable 1']) || 'Sin asignar',
+        start:       dates.start,
+        end:         dates.end,
+        spi:         getNum(p.properties['SPI']),
+        tipo
+      };
+    }).filter(p => p.start && p.end);
+  }
+
+  function buildGantt(projects) {
+    // Rango global: mín inicio → máx fin, forzar al menos todo 2026
+    const today    = new Date();
+    const allDates = projects.flatMap(p => [p.start, p.end]).filter(Boolean);
+    const minDate  = new Date(Math.min(new Date('2025-01-01'), ...allDates.map(d => d.getTime())));
+    const maxDate  = new Date(Math.max(new Date('2026-12-31'), ...allDates.map(d => d.getTime())));
+
+    // Snap a inicio de mes
+    const rangeStart = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+    const rangeEnd   = new Date(maxDate.getFullYear(), maxDate.getMonth() + 1, 0);
+    const totalMs    = rangeEnd - rangeStart;
+
+    // Construir meses para header
+    const months = [];
+    let cur = new Date(rangeStart);
+    while (cur <= rangeEnd) {
+      months.push({ year: cur.getFullYear(), month: cur.getMonth() });
+      cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+    }
+
+    // Agrupar por responsable
+    const respMap = {};
+    projects.forEach(p => {
+      if (!respMap[p.responsable]) respMap[p.responsable] = [];
+      respMap[p.responsable].push(p);
+    });
+
+    // Asignar color por responsable
+    const respNames  = Object.keys(respMap).sort();
+    const respColors = {};
+    respNames.forEach((r, i) => { respColors[r] = RESP_COLORS[i % RESP_COLORS.length]; });
+
+    // Posición % en timeline
+    function pos(date) {
+      return Math.max(0, Math.min(100, ((date - rangeStart) / totalMs) * 100));
+    }
+    function todayPct() { return pos(today); }
+
+    // HTML
+    let html = '<thead><tr class="gantt-header-row">';
+    html += '<th class="col-name">Proyecto</th>';
+    html += '<th class="col-tipo">Tipo</th>';
+    html += `<th style="position:relative; padding-bottom:12px">
+      <div style="display:flex; justify-content:space-between; padding:0 0 0 0">`;
+    months.forEach((m, i) => {
+      const pct = (i / months.length) * 100;
+      html += `<span style="position:absolute; left:${pct}%; transform:translateX(-50%); white-space:nowrap">
+        ${MONTHS[m.month]} ${m.year !== today.getFullYear() ? m.year : ''}
+      </span>`;
+    });
+    html += '</div></th></tr></thead><tbody>';
+
+    respNames.forEach(resp => {
+      const projs = respMap[resp];
+      const color = respColors[resp];
+
+      // Separator
+      html += `<tr class="resp-separator">
+        <td colspan="3">
+          <span class="resp-tag">
+            <span class="resp-dot" style="background:${color}"></span>
+            ${resp}
+            <span class="resp-count">${projs.length} proyecto${projs.length !== 1 ? 's' : ''}</span>
+          </span>
+        </td>
+      </tr>`;
+
+      projs.forEach(p => {
+        const left  = pos(p.start);
+        const right = pos(p.end);
+        const width = Math.max(right - left, 0.5);
+        const spiStr = p.spi != null ? p.spi.toFixed(2) : '—';
+
+        // Color barra según tipo con transparencia
+        const barColor = p.tipo === 'Estratégico'
+          ? 'linear-gradient(90deg, rgba(224,64,251,0.9), rgba(224,64,251,0.6))'
+          : 'linear-gradient(90deg, rgba(38,198,218,0.9), rgba(38,198,218,0.6))';
+
+        const tdPct   = todayPct();
+        const tipoBadge = p.tipo === 'Estratégico'
+          ? '<span class="tipo-badge tipo-e">E</span>'
+          : '<span class="tipo-badge tipo-t">T</span>';
+
+        html += `<tr class="proj-row"
+          data-name="${p.name.replace(/"/g,'&quot;')}"
+          data-start="${fmtDate(p.start)}"
+          data-end="${fmtDate(p.end)}"
+          data-tipo="${p.tipo}"
+          data-spi="${spiStr}">
+          <td><div class="proj-name" title="${p.name}">${p.name}</div></td>
+          <td class="proj-tipo">${tipoBadge}</td>
+          <td class="cell-timeline">
+            <div class="today-line" style="left:${tdPct}%"></div>
+            <div class="bar" style="left:${left}%; width:${width}%; background:${barColor}">
+              <span class="bar-label">${p.name}</span>
+            </div>
+          </td>
+        </tr>`;
+      });
+    });
+
+    html += '</tbody>';
+    return html;
+  }
+
+  // Tooltip
+  const tooltip = document.getElementById('tooltip');
+  document.addEventListener('mousemove', e => {
+    const row = e.target.closest('.proj-row');
+    if (row) {
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top  = (e.clientY - 10) + 'px';
+      document.getElementById('tt-name').textContent  = row.dataset.name;
+      document.getElementById('tt-start').textContent = row.dataset.start;
+      document.getElementById('tt-end').textContent   = row.dataset.end;
+      document.getElementById('tt-tipo').textContent  = row.dataset.tipo;
+      document.getElementById('tt-spi').textContent   = row.dataset.spi;
+    } else {
+      tooltip.style.display = 'none';
+    }
+  });
+
+  async function load() {
+    try {
+      const [estr, tact] = await Promise.all([
+        loadDB(DB_ESTR, 'Estratégico'),
+        loadDB(DB_TACT, 'Táctico')
+      ]);
+
+      const all = [...estr, ...tact];
+      if (!all.length) throw new Error('Sin proyectos con fechas');
+
+      const ganttHTML = buildGantt(all);
+      document.getElementById('ganttTable').innerHTML = ganttHTML;
+
+      // Animar barras
+      setTimeout(() => {
+        document.querySelectorAll('.bar').forEach(b => b.classList.add('visible'));
+      }, 200);
+
+      const now = new Date();
+      document.getElementById('footerDate').textContent =
+        'Actualizado: ' + now.toLocaleDateString('es-EC', { day:'2-digit', month:'short', year:'numeric' }) +
+        ' · ' + now.toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit' });
+
+      document.getElementById('loader').style.display   = 'none';
+      document.getElementById('ganttWrap').style.display = 'block';
+
+    } catch(e) {
+      console.error(e);
+      document.getElementById('loader').innerHTML =
+        '<div class="error-msg">No se pudo cargar el Gantt. Verifica la conexión con Notion.</div>';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
