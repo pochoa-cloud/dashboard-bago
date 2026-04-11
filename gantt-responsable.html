@@ -17,7 +17,6 @@
     --yellow:  #ffa726;
     --red:     #ef5350;
     --green:   #66bb6a;
-    --violet:  #7c4dff;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -34,13 +33,9 @@
     padding: 22px 24px;
     overflow: hidden;
   }
-
-  /* ── HEADER ── */
   .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 20px;
     flex-wrap: wrap; gap: 10px;
   }
   .card-label {
@@ -61,126 +56,118 @@
   }
   .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
 
-  /* ── GANTT LAYOUT ── */
+  /* ── GANTT ── */
   .gantt-outer { overflow-x: auto; }
+  .gantt-inner { min-width: 700px; display: flex; flex-direction: column; }
 
-  .gantt-inner {
-    min-width: 900px;
-    display: flex;
-    flex-direction: column;
-  }
+  /* Nombre + tipo columnas fijas */
+  .NAME_W  { width: 190px; min-width: 190px; flex-shrink: 0; }
+  .TIPO_W  { width: 32px;  min-width: 32px;  flex-shrink: 0; }
 
-  /* Fila de meses */
-  .month-header {
+  /* ── MONTH HEADER ── */
+  .month-header-row {
     display: flex;
-    margin-left: 240px; /* alineado con timeline */
-    margin-bottom: 8px;
-    border-bottom: 1px solid var(--border);
+    align-items: flex-end;
+    margin-bottom: 6px;
     padding-bottom: 8px;
-    position: relative;
+    border-bottom: 2px solid var(--border);
   }
-  .month-cell {
+  .mh-spacer { width: 222px; min-width: 222px; flex-shrink: 0; } /* NAME_W + TIPO_W */
+  .mh-timeline {
     flex: 1;
+    position: relative;
+    height: 32px;
+  }
+  /* Cada label de mes/trimestre */
+  .mh-label {
+    position: absolute;
+    transform: translateX(-50%);
+    bottom: 0;
     text-align: center;
-    font-size: 9px; font-weight: 500;
-    letter-spacing: 1px; text-transform: uppercase;
-    color: var(--muted);
     white-space: nowrap;
-    overflow: hidden;
+  }
+  .mh-label .m-name {
+    display: block;
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text);
+  }
+  .mh-label .m-year {
+    display: block;
+    font-size: 8px; color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  /* Tick vertical */
+  .mh-tick {
+    position: absolute;
+    bottom: -8px;
+    width: 1px;
+    height: 8px;
+    background: var(--muted);
+    transform: translateX(-50%);
   }
 
-  /* Separador de responsable */
-  .resp-block { margin-bottom: 4px; }
+  /* ── RESP BLOCK ── */
+  .resp-block { margin-bottom: 2px; }
   .resp-sep {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex; align-items: center; gap: 8px;
     padding: 10px 0 6px 0;
     border-bottom: 1px solid var(--border);
   }
-  .resp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink:0; }
+  .resp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .resp-name {
     font-family: 'Syne', sans-serif;
     font-size: 12px; font-weight: 700; color: var(--text);
   }
-  .resp-count {
-    font-size: 10px; color: var(--muted);
-  }
+  .resp-count { font-size: 10px; color: var(--muted); }
 
-  /* Fila de proyecto */
+  /* ── PROJ ROW ── */
   .proj-row {
-    display: flex;
-    align-items: center;
-    height: 32px;
-    border-bottom: 1px solid rgba(26,29,38,0.5);
+    display: flex; align-items: center;
+    height: 30px;
+    border-bottom: 1px solid rgba(26,29,38,0.4);
   }
   .proj-row:last-child { border-bottom: none; }
 
   .proj-name-col {
-    width: 190px; min-width: 190px;
+    width: 190px; min-width: 190px; flex-shrink: 0;
     font-size: 11px; color: var(--text);
     white-space: nowrap; overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 10px;
-    flex-shrink: 0;
+    text-overflow: ellipsis; padding-right: 10px;
   }
-
   .proj-tipo-col {
-    width: 32px; min-width: 32px;
-    flex-shrink: 0;
+    width: 32px; min-width: 32px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
   }
   .tipo-badge {
-    display: inline-block;
-    padding: 2px 5px; border-radius: 3px;
-    font-size: 8px; font-weight: 700;
-    letter-spacing: 0.5px;
+    display: inline-block; padding: 2px 5px;
+    border-radius: 3px; font-size: 8px; font-weight: 700;
   }
-  .tipo-e { background: rgba(224,64,251,0.15); color: var(--magenta); }
-  .tipo-t { background: rgba(38,198,218,0.15); color: var(--cyan); }
+  .tipo-e { background:rgba(224,64,251,0.15); color:var(--magenta); }
+  .tipo-t { background:rgba(38,198,218,0.15);  color:var(--cyan); }
 
-  /* Timeline */
   .timeline-col {
-    flex: 1;
-    position: relative;
-    height: 100%;
+    flex: 1; position: relative; height: 100%;
     display: flex; align-items: center;
   }
-
-  /* Grid lines de meses */
   .grid-line {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 1px;
-    background: var(--border);
-    opacity: 0.4;
+    position: absolute; top: 0; bottom: 0;
+    width: 1px; background: var(--border); opacity: 0.35;
     pointer-events: none;
   }
-
-  /* Línea de hoy */
   .today-line {
-    position: absolute;
-    top: -4px; bottom: -4px;
-    width: 1.5px;
-    background: var(--yellow);
-    opacity: 0.7;
-    z-index: 5;
-    pointer-events: none;
+    position: absolute; top: -3px; bottom: -3px;
+    width: 2px; background: var(--yellow); opacity: 0.75;
+    z-index: 5; pointer-events: none; border-radius: 1px;
   }
-
-  /* Barra */
   .gantt-bar {
-    position: absolute;
-    height: 16px;
-    border-radius: 4px;
-    display: flex; align-items: center;
-    overflow: hidden;
-    cursor: pointer;
-    transition: opacity 0.3s ease, filter 0.2s ease;
-    opacity: 0;
+    position: absolute; height: 16px; border-radius: 4px;
+    display: flex; align-items: center; overflow: hidden;
+    cursor: pointer; opacity: 0;
+    transition: opacity 0.4s ease, filter 0.15s ease;
   }
   .gantt-bar.show { opacity: 1; }
-  .gantt-bar:hover { filter: brightness(1.2); }
+  .gantt-bar:hover { filter: brightness(1.25); }
   .bar-label {
     font-size: 8px; font-weight: 600;
     color: rgba(255,255,255,0.9);
@@ -192,8 +179,7 @@
   .footer {
     display: flex; justify-content: space-between;
     align-items: center; margin-top: 16px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border);
+    padding-top: 14px; border-top: 1px solid var(--border);
     flex-wrap: wrap; gap: 8px;
   }
   .footer-brand { font-size: 10px; color: var(--muted); }
@@ -217,30 +203,20 @@
 
   /* Tooltip */
   .tooltip {
-    position: fixed;
-    background: #1a1d26;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 11px;
-    pointer-events: none;
-    z-index: 999;
-    display: none;
-    min-width: 200px;
+    position: fixed; background: #1a1d26;
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; pointer-events: none;
+    z-index: 999; display: none; min-width: 200px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   }
   .tt-name {
     font-family: 'Syne', sans-serif;
     font-size: 12px; font-weight: 700;
-    color: var(--text); margin-bottom: 8px;
-    line-height: 1.3;
+    color: var(--text); margin-bottom: 8px; line-height: 1.3;
   }
-  .tt-row {
-    display: flex; justify-content: space-between;
-    gap: 16px; margin-bottom: 3px;
-  }
-  .tt-row .lbl { color: var(--muted); font-size: 10px; }
-  .tt-row .val { color: var(--text); font-size: 10px; font-weight: 500; }
+  .tt-row { display:flex; justify-content:space-between; gap:16px; margin-bottom:3px; }
+  .tt-row .lbl { color:var(--muted); font-size:10px; }
+  .tt-row .val { color:var(--text); font-size:10px; font-weight:500; }
 </style>
 </head>
 <body>
@@ -260,12 +236,8 @@
       <div class="card-title">Línea de Tiempo por Responsable</div>
     </div>
     <div class="legend">
-      <div class="legend-item">
-        <div class="legend-dot" style="background:var(--magenta)"></div>Estratégico
-      </div>
-      <div class="legend-item">
-        <div class="legend-dot" style="background:var(--cyan)"></div>Táctico
-      </div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--magenta)"></div>Estratégico</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Táctico</div>
       <div class="legend-item">
         <div style="width:2px;height:14px;background:var(--yellow);border-radius:1px"></div>Hoy
       </div>
@@ -290,32 +262,36 @@
   const DB_ESTR = '24d0a97eed8d81e99427e311c9f026aa';
   const DB_TACT = '3210a97eed8d80628599c65e6b0b4ed1';
 
-  const RESP_COLORS = [
-    '#e040fb','#26c6da','#66bb6a','#ffa726',
-    '#7c4dff','#f06292','#80cbc4','#ffcc02'
-  ];
-  const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  // Rango FIJO: Ene 2025 → Dic 2026
+  const RANGE_START = new Date(2025, 0, 1);   // 1 Ene 2025
+  const RANGE_END   = new Date(2026, 11, 31); // 31 Dic 2026
+  const TOTAL_MS    = RANGE_END - RANGE_START;
+
+  const RESP_COLORS = ['#e040fb','#26c6da','#66bb6a','#ffa726','#7c4dff','#f06292','#80cbc4','#ffcc02'];
+  const MES_ES      = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+  // Mostrar solo meses de inicio de trimestre: Ene, Abr, Jul, Oct
+  const TRIMESTRES  = [0, 3, 6, 9];
 
   async function api(url, payload={}) {
     const res = await fetch(WORKER, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ url, token:`Bearer ${TOKEN}`, payload })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({url, token:`Bearer ${TOKEN}`, payload})
     });
     return res.json();
   }
 
   function getTitle(prop) {
-    if (!prop || prop.type !== 'title') return 'Sin nombre';
+    if (!prop || prop.type!=='title') return 'Sin nombre';
     return prop.title?.[0]?.plain_text ?? 'Sin nombre';
   }
   function getSelect(prop) {
     if (!prop) return null;
-    if (prop.type === 'select') return prop.select?.name ?? null;
+    if (prop.type==='select') return prop.select?.name ?? null;
     return null;
   }
   function getDates(prop) {
-    if (!prop || prop.type !== 'date') return {start:null,end:null};
+    if (!prop || prop.type!=='date') return {start:null,end:null};
     return {
       start: prop.date?.start ? new Date(prop.date.start) : null,
       end:   prop.date?.end   ? new Date(prop.date.end)   : null
@@ -332,12 +308,17 @@
     if (!d) return '—';
     return d.toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'});
   }
+  function pct(date) {
+    return Math.max(0, Math.min(100, ((date - RANGE_START) / TOTAL_MS) * 100));
+  }
 
   async function loadDB(dbId, tipo) {
     const data  = await api(`https://api.notion.com/v1/databases/${dbId}/query`,{page_size:100});
     const pages = data.results || [];
     return pages.map(p => {
-      const titleProp = p.properties['Nombre del proyecto'] || p.properties['Name'] || Object.values(p.properties).find(x=>x.type==='title');
+      const titleProp = p.properties['Nombre del proyecto']
+        || p.properties['Name']
+        || Object.values(p.properties).find(x=>x.type==='title');
       const dates = getDates(p.properties['Fechas']);
       return {
         name:        getTitle(titleProp),
@@ -351,63 +332,76 @@
   }
 
   function buildGantt(projects) {
-    const today = new Date();
-
-    // Rango: mín de todos los inicios → máx de todos los fines, al menos 2025-ene a 2026-dic
-    const allStarts = projects.map(p=>p.start.getTime());
-    const allEnds   = projects.map(p=>p.end.getTime());
-    const minTs = Math.min(new Date('2025-01-01').getTime(), ...allStarts);
-    const maxTs = Math.max(new Date('2026-12-31').getTime(), ...allEnds);
-
-    const rangeStart = new Date(new Date(minTs).getFullYear(), new Date(minTs).getMonth(), 1);
-    const rangeEnd   = new Date(new Date(maxTs).getFullYear(), new Date(maxTs).getMonth()+1, 0);
-    const totalMs    = rangeEnd.getTime() - rangeStart.getTime();
-
-    // Meses en el rango
-    const months = [];
-    let cur = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
-    while (cur <= rangeEnd) {
-      months.push(new Date(cur));
-      cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
-    }
-
-    function pct(date) {
-      return Math.max(0, Math.min(100, ((date.getTime()-rangeStart.getTime())/totalMs)*100));
-    }
-
+    const today    = new Date();
     const todayPct = pct(today);
+    const container = document.getElementById('ganttInner');
+    container.innerHTML = '';
 
-    // Agrupar por responsable
+    // ── HEADER MESES (trimestral) ──
+    const headerRow = document.createElement('div');
+    headerRow.className = 'month-header-row';
+
+    const spacer = document.createElement('div');
+    spacer.className = 'mh-spacer';
+    headerRow.appendChild(spacer);
+
+    const tlHeader = document.createElement('div');
+    tlHeader.className = 'mh-timeline';
+
+    // Generar todos los meses del rango y filtrar trimestres
+    let cur = new Date(RANGE_START);
+    while (cur <= RANGE_END) {
+      const m = cur.getMonth();
+      const y = cur.getFullYear();
+      if (TRIMESTRES.includes(m)) {
+        const leftPct = pct(cur);
+
+        const label = document.createElement('div');
+        label.className = 'mh-label';
+        label.style.left = leftPct + '%';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'm-name';
+        nameSpan.textContent = MES_ES[m];
+
+        const yearSpan = document.createElement('span');
+        yearSpan.className = 'm-year';
+        yearSpan.textContent = y;
+
+        label.appendChild(nameSpan);
+        label.appendChild(yearSpan);
+        tlHeader.appendChild(label);
+
+        const tick = document.createElement('div');
+        tick.className = 'mh-tick';
+        tick.style.left = leftPct + '%';
+        tlHeader.appendChild(tick);
+      }
+      cur = new Date(y, m + 1, 1);
+    }
+
+    // Línea de hoy en el header
+    const todayTick = document.createElement('div');
+    todayTick.style.cssText = `position:absolute;bottom:-8px;width:2px;height:8px;
+      background:var(--yellow);transform:translateX(-50%);left:${todayPct}%;border-radius:1px;`;
+    tlHeader.appendChild(todayTick);
+
+    headerRow.appendChild(tlHeader);
+    container.appendChild(headerRow);
+
+    // ── RESPONSABLES ──
     const respMap = {};
     projects.forEach(p => {
       if (!respMap[p.responsable]) respMap[p.responsable] = [];
       respMap[p.responsable].push(p);
     });
-    const respNames = Object.keys(respMap).sort();
+    const respNames  = Object.keys(respMap).sort();
     const respColors = {};
     respNames.forEach((r,i) => respColors[r] = RESP_COLORS[i % RESP_COLORS.length]);
 
-    const container = document.getElementById('ganttInner');
-    container.innerHTML = '';
-
-    // ── HEADER MESES ──
-    const monthHeader = document.createElement('div');
-    monthHeader.className = 'month-header';
-    months.forEach((m, i) => {
-      const cell = document.createElement('div');
-      cell.className = 'month-cell';
-      // Mostrar año solo en enero o primer mes
-      const showYear = m.getMonth() === 0 || i === 0;
-      cell.textContent = MONTHS_ES[m.getMonth()] + (showYear ? ` ${m.getFullYear()}` : '');
-      monthHeader.appendChild(cell);
-    });
-    container.appendChild(monthHeader);
-
-    // ── BLOQUES POR RESPONSABLE ──
     respNames.forEach(resp => {
       const projs = respMap[resp];
       const color = respColors[resp];
-
       const block = document.createElement('div');
       block.className = 'resp-block';
 
@@ -420,72 +414,71 @@
         <span class="resp-count">${projs.length} proyecto${projs.length!==1?'s':''}</span>`;
       block.appendChild(sep);
 
-      // Filas de proyectos
       projs.forEach(p => {
         const row = document.createElement('div');
         row.className = 'proj-row';
 
         // Nombre
-        const nameCol = document.createElement('div');
-        nameCol.className = 'proj-name-col';
-        nameCol.title = p.name;
-        nameCol.textContent = p.name;
+        const nc = document.createElement('div');
+        nc.className = 'proj-name-col';
+        nc.title = p.name;
+        nc.textContent = p.name;
 
-        // Tipo badge
-        const tipoCol = document.createElement('div');
-        tipoCol.className = 'proj-tipo-col';
-        tipoCol.innerHTML = p.tipo === 'Estratégico'
+        // Tipo
+        const tc = document.createElement('div');
+        tc.className = 'proj-tipo-col';
+        tc.innerHTML = p.tipo==='Estratégico'
           ? '<span class="tipo-badge tipo-e">E</span>'
           : '<span class="tipo-badge tipo-t">T</span>';
 
         // Timeline
-        const tlCol = document.createElement('div');
-        tlCol.className = 'timeline-col';
-
-        // Grid lines de meses
-        months.forEach((m,i) => {
-          if (i === 0) return;
-          const gl = document.createElement('div');
-          gl.className = 'grid-line';
-          gl.style.left = ((i / months.length) * 100) + '%';
-          tlCol.appendChild(gl);
-        });
-
-        // Línea de hoy
         const tl = document.createElement('div');
-        tl.className = 'today-line';
-        tl.style.left = todayPct + '%';
-        tlCol.appendChild(tl);
+        tl.className = 'timeline-col';
+
+        // Grid lines en trimestres
+        let gc = new Date(RANGE_START);
+        while (gc <= RANGE_END) {
+          if (TRIMESTRES.includes(gc.getMonth())) {
+            const gl = document.createElement('div');
+            gl.className = 'grid-line';
+            gl.style.left = pct(gc) + '%';
+            tl.appendChild(gl);
+          }
+          gc = new Date(gc.getFullYear(), gc.getMonth()+1, 1);
+        }
+
+        // Línea hoy
+        const todayEl = document.createElement('div');
+        todayEl.className = 'today-line';
+        todayEl.style.left = todayPct + '%';
+        tl.appendChild(todayEl);
 
         // Barra
-        const left  = pct(p.start);
-        const right = pct(p.end);
-        const width = Math.max(right - left, 0.5);
+        const l = pct(p.start);
+        const r = pct(p.end);
+        const w = Math.max(r - l, 0.5);
 
-        const barColor = p.tipo === 'Estratégico'
-          ? 'linear-gradient(90deg,rgba(224,64,251,0.85),rgba(224,64,251,0.55))'
-          : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.55))';
+        const barColor = p.tipo==='Estratégico'
+          ? 'linear-gradient(90deg,rgba(224,64,251,0.85),rgba(224,64,251,0.5))'
+          : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.5))';
 
         const bar = document.createElement('div');
         bar.className = 'gantt-bar';
-        bar.style.cssText = `left:${left}%;width:${width}%;background:${barColor}`;
+        bar.style.cssText = `left:${l}%;width:${w}%;background:${barColor}`;
         bar.innerHTML = `<span class="bar-label">${p.name}</span>`;
-
-        // Datos tooltip
         bar.dataset.name  = p.name;
         bar.dataset.start = fmtDate(p.start);
         bar.dataset.end   = fmtDate(p.end);
         bar.dataset.tipo  = p.tipo;
-        bar.dataset.spi   = p.spi != null ? p.spi.toFixed(2) : '—';
+        bar.dataset.spi   = p.spi!=null ? p.spi.toFixed(2) : '—';
 
-        tlCol.appendChild(bar);
-        row.appendChild(nameCol);
-        row.appendChild(tipoCol);
-        row.appendChild(tlCol);
+        tl.appendChild(bar);
+        row.appendChild(nc);
+        row.appendChild(tc);
+        row.appendChild(tl);
         block.appendChild(row);
 
-        // Animar barra
-        setTimeout(() => bar.classList.add('show'), 300);
+        setTimeout(() => bar.classList.add('show'), 250);
       });
 
       container.appendChild(block);
@@ -498,8 +491,8 @@
     const bar = e.target.closest('.gantt-bar');
     if (bar) {
       tooltip.style.display = 'block';
-      tooltip.style.left = (e.clientX + 14) + 'px';
-      tooltip.style.top  = (e.clientY - 10) + 'px';
+      tooltip.style.left = (e.clientX+14)+'px';
+      tooltip.style.top  = (e.clientY-10)+'px';
       document.getElementById('tt-name').textContent  = bar.dataset.name;
       document.getElementById('tt-start').textContent = bar.dataset.start;
       document.getElementById('tt-end').textContent   = bar.dataset.end;
@@ -516,7 +509,7 @@
         loadDB(DB_ESTR,'Estratégico'),
         loadDB(DB_TACT,'Táctico')
       ]);
-      const all = [...estr, ...tact];
+      const all = [...estr,...tact];
       if (!all.length) throw new Error('Sin proyectos');
 
       buildGantt(all);
