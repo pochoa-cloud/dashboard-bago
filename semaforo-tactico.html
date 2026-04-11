@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Semáforo SPI · Portafolio Táctico 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:        #0a0b0f;
+    --surface:   #111318;
+    --border:    #1a1d26;
+    --text:      #e8eaf0;
+    --muted:     #4a5068;
+    --magenta:   #e040fb;
+    --cyan:      #26c6da;
+    --yellow:    #ffa726;
+    --red:       #ef5350;
+    --green:     #66bb6a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 40px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(224,64,251,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .label-top {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 28px;
+  }
+
+  .ring-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 24px;
+  }
+
+  .ring-container svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  /* Anillo exterior — referencia 100% verde fijo */
+  .outer-track { fill: none; stroke: rgba(102,187,106,0.12); stroke-width: 10; }
+  .outer-fill  { fill: none; stroke: var(--green); stroke-width: 10;
+                 stroke-linecap: round;
+                 stroke-dasharray: 565.48;
+                 stroke-dashoffset: 0;
+                 transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1); }
+
+  /* Anillo interior — SPI dinámico */
+  .inner-track { fill: none; stroke: rgba(38,198,218,0.10); stroke-width: 14; }
+  .inner-fill  { fill: none; stroke-width: 14;
+                 stroke-linecap: round;
+                 stroke-dasharray: 439.82;
+                 stroke-dashoffset: 439.82;
+                 transition: stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1),
+                             stroke 0.4s ease; }
+
+  .center-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .spi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -1px;
+    transition: color 0.4s ease;
+  }
+
+  .spi-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 18px;
+    border-radius: 100px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: 1px solid;
+    margin-bottom: 24px;
+    transition: all 0.4s ease;
+  }
+
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .metric-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 8px;
+  }
+
+  .metric-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .metric-lbl {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .loader {
+    position: absolute;
+    inset: 0;
+    background: var(--surface);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: opacity 0.5s ease;
+  }
+
+  .loader-ring {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--magenta);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-msg {
+    color: var(--red);
+    font-size: 13px;
+    padding: 12px;
+    display: none;
+  }
+
+  .updated {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 16px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+
+  <div class="loader" id="loader">
+    <div class="loader-ring"></div>
+  </div>
+
+  <div class="label-top">Portafolio Táctico · Bagó Ecuador</div>
+  <div class="title">Índice de Desempeño del Cronograma</div>
+
+  <div class="ring-container">
+    <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- Anillo exterior (r=90 → circunferencia 565.48) -->
+      <circle class="outer-track" cx="110" cy="110" r="90"/>
+      <circle class="outer-fill"  cx="110" cy="110" r="90" id="outerFill"/>
+      <!-- Anillo interior (r=70 → circunferencia 439.82) -->
+      <circle class="inner-track" cx="110" cy="110" r="70"/>
+      <circle class="inner-fill"  cx="110" cy="110" r="70" id="innerFill"/>
+    </svg>
+    <div class="center-text">
+      <div class="spi-value" id="spiValue">—</div>
+      <div class="spi-label">SPI</div>
+    </div>
+  </div>
+
+  <div class="status-badge" id="statusBadge">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">Cargando…</span>
+  </div>
+
+  <div class="metrics-row">
+    <div class="metric-box">
+      <div class="metric-val" id="metricReal">—</div>
+      <div class="metric-lbl">% Real</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val" id="metricEsperado">—</div>
+      <div class="metric-lbl">% Esperado</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val" id="metricProyectos">—</div>
+      <div class="metric-lbl">Proyectos</div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Meta (100%)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>SPI ≥ 90%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>80–89%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>< 80%</div>
+  </div>
+
+  <div class="error-msg" id="errorMsg">No se pudo conectar con Notion.</div>
+  <div class="updated" id="updatedAt"></div>
+</div>
+
+<script>
+const WORKER   = 'https://royal-limit-9465.pochoa.workers.dev/';
+const TOKEN    = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+const DB_ID    = '3210a97eed8d80628599c65e6b0b4ed1'; // Proyectos Tácticos
+
+async function fetchProjects() {
+  const res = await fetch(`${WORKER}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      notion_url: `https://api.notion.com/v1/databases/${DB_ID}/query`,
+      notion_token: TOKEN,
+      method: 'POST',
+      body: { page_size: 100 }
+    })
+  });
+  if (!res.ok) throw new Error('Worker error ' + res.status);
+  return res.json();
+}
+
+function getProp(page, name) {
+  const prop = page.properties[name];
+  if (!prop) return null;
+  if (prop.type === 'number')  return prop.number;
+  if (prop.type === 'formula') {
+    const f = prop.formula;
+    if (f.type === 'number') return f.number;
+    if (f.type === 'string') return f.string;
+  }
+  return null;
+}
+
+function getSPIColor(spi) {
+  if (spi >= 0.90) return 'var(--cyan)';
+  if (spi >= 0.80) return 'var(--yellow)';
+  return 'var(--red)';
+}
+
+function getSPIStatus(spi) {
+  if (spi >= 0.90) return { text: 'En buen ritmo', color: 'var(--cyan)', bg: 'rgba(38,198,218,0.10)', border: 'rgba(38,198,218,0.30)' };
+  if (spi >= 0.80) return { text: 'Atención requerida', color: 'var(--yellow)', bg: 'rgba(255,167,38,0.10)', border: 'rgba(255,167,38,0.30)' };
+  return { text: 'Riesgo crítico', color: 'var(--red)', bg: 'rgba(239,83,80,0.10)', border: 'rgba(239,83,80,0.30)' };
+}
+
+function animateRing(elementId, circumference, pct) {
+  const el = document.getElementById(elementId);
+  const offset = circumference * (1 - Math.min(pct, 1));
+  setTimeout(() => { el.style.strokeDashoffset = offset; }, 200);
+}
+
+async function init() {
+  try {
+    const data = await fetchProjects();
+    const pages = data.results || [];
+
+    let totalReal = 0, totalEsperado = 0, count = 0;
+
+    pages.forEach(p => {
+      const real     = getProp(p, '% Real');
+      const esperado = getProp(p, '% Esperado');
+      if (real !== null && esperado !== null) {
+        totalReal     += real;
+        totalEsperado += esperado;
+        count++;
+      }
+    });
+
+    const avgReal     = count ? totalReal     / count : 0;
+    const avgEsperado = count ? totalEsperado / count : 0;
+    const spi         = avgEsperado > 0 ? avgReal / avgEsperado : 0;
+
+    // UI
+    const color  = getSPIColor(spi);
+    const status = getSPIStatus(spi);
+
+    document.getElementById('spiValue').textContent = spi.toFixed(2);
+    document.getElementById('spiValue').style.color = color;
+
+    document.getElementById('metricReal').textContent     = (avgReal     * 100).toFixed(1) + '%';
+    document.getElementById('metricEsperado').textContent = (avgEsperado * 100).toFixed(1) + '%';
+    document.getElementById('metricProyectos').textContent = count;
+
+    const badge = document.getElementById('statusBadge');
+    badge.style.color       = status.color;
+    badge.style.background  = status.bg;
+    badge.style.borderColor = status.border;
+    document.getElementById('statusDot').style.background = status.color;
+    document.getElementById('statusText').textContent = status.text;
+
+    document.getElementById('innerFill').style.stroke = color;
+
+    // Anillo exterior: 100% fijo verde
+    animateRing('outerFill', 565.48, 1.0);
+    // Anillo interior: SPI real
+    animateRing('innerFill', 439.82, spi);
+
+    const now = new Date();
+    document.getElementById('updatedAt').textContent =
+      'Actualizado: ' + now.toLocaleDateString('es-EC', { day:'2-digit', month:'short', year:'numeric' }) +
+      ' · ' + now.toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit' });
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('errorMsg').style.display = 'block';
+    document.getElementById('statusText').textContent = 'Error de conexión';
+  } finally {
+    const loader = document.getElementById('loader');
+    loader.style.opacity = '0';
+    setTimeout(() => loader.style.display = 'none', 500);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
