@@ -18,183 +18,181 @@
     --red:     #ef5350;
     --green:   #66bb6a;
     --violet:  #7c4dff;
-    --pink:    #f06292;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     background: var(--bg);
     font-family: 'DM Sans', sans-serif;
     color: var(--text);
-    padding: 24px;
+    padding: 20px;
     min-height: 100vh;
   }
-
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 24px 28px;
+    padding: 22px 24px;
     overflow: hidden;
   }
 
+  /* ── HEADER ── */
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap; gap: 10px;
   }
-
-  .card-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 16px; font-weight: 700;
-    color: var(--text);
-  }
-
   .card-label {
     font-size: 9px; font-weight: 500;
     letter-spacing: 2.5px; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 4px;
+    color: var(--muted); margin-bottom: 3px;
   }
-
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700; color: var(--text);
+  }
   .legend {
-    display: flex; gap: 16px; flex-wrap: wrap;
-    align-items: center;
+    display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
   }
   .legend-item {
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 5px;
     font-size: 10px; color: var(--muted);
   }
-  .legend-dot {
-    width: 10px; height: 10px; border-radius: 3px;
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* ── GANTT LAYOUT ── */
+  .gantt-outer { overflow-x: auto; }
+
+  .gantt-inner {
+    min-width: 900px;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* ── GANTT ── */
-  .gantt-wrap { overflow-x: auto; }
-
-  .gantt-table {
-    width: 100%;
-    min-width: 800px;
-    border-collapse: collapse;
+  /* Fila de meses */
+  .month-header {
+    display: flex;
+    margin-left: 240px; /* alineado con timeline */
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    position: relative;
   }
-
-  /* Header meses */
-  .gantt-header-row th {
+  .month-cell {
+    flex: 1;
+    text-align: center;
     font-size: 9px; font-weight: 500;
-    letter-spacing: 1.5px; text-transform: uppercase;
+    letter-spacing: 1px; text-transform: uppercase;
     color: var(--muted);
-    padding: 0 0 12px 0;
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-  }
-  .gantt-header-row th.col-name {
-    text-align: left;
-    padding-left: 0;
-    width: 180px;
-    min-width: 180px;
-  }
-  .gantt-header-row th.col-tipo {
-    width: 60px; min-width: 60px;
-    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
-  /* Separator responsable */
-  .resp-separator td {
-    padding: 16px 0 8px 0;
-    font-family: 'Syne', sans-serif;
-    font-size: 12px; font-weight: 700;
-    color: var(--text);
-    letter-spacing: 1px;
+  /* Separador de responsable */
+  .resp-block { margin-bottom: 4px; }
+  .resp-sep {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0 6px 0;
     border-bottom: 1px solid var(--border);
   }
-  .resp-separator .resp-tag {
-    display: inline-flex; align-items: center; gap: 8px;
-  }
-  .resp-dot {
-    width: 8px; height: 8px; border-radius: 50%;
+  .resp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink:0; }
+  .resp-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 700; color: var(--text);
   }
   .resp-count {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10px; font-weight: 400;
-    color: var(--muted); margin-left: 4px;
+    font-size: 10px; color: var(--muted);
   }
 
-  /* Project row */
-  .proj-row td {
-    padding: 5px 0;
-    vertical-align: middle;
+  /* Fila de proyecto */
+  .proj-row {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    border-bottom: 1px solid rgba(26,29,38,0.5);
   }
-  .proj-row:last-child td { padding-bottom: 12px; }
+  .proj-row:last-child { border-bottom: none; }
 
-  .proj-name {
+  .proj-name-col {
+    width: 190px; min-width: 190px;
     font-size: 11px; color: var(--text);
     white-space: nowrap; overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 175px;
-    padding-right: 8px;
+    padding-right: 10px;
+    flex-shrink: 0;
   }
 
-  .proj-tipo {
-    text-align: center;
+  .proj-tipo-col {
+    width: 32px; min-width: 32px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
   }
   .tipo-badge {
     display: inline-block;
-    padding: 2px 6px; border-radius: 4px;
-    font-size: 8px; font-weight: 600;
-    letter-spacing: 0.5px; text-transform: uppercase;
+    padding: 2px 5px; border-radius: 3px;
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 0.5px;
   }
   .tipo-e { background: rgba(224,64,251,0.15); color: var(--magenta); }
   .tipo-t { background: rgba(38,198,218,0.15); color: var(--cyan); }
 
-  /* Celda de timeline */
-  .cell-timeline { position: relative; height: 28px; }
-
-  /* Barra */
-  .bar {
-    position: absolute;
-    top: 50%; transform: translateY(-50%);
-    height: 14px; border-radius: 4px;
-    opacity: 0;
-    transition: opacity 0.4s ease, width 0s;
+  /* Timeline */
+  .timeline-col {
+    flex: 1;
+    position: relative;
+    height: 100%;
     display: flex; align-items: center;
-    overflow: hidden;
-    cursor: default;
-  }
-  .bar.visible { opacity: 1; }
-  .bar-label {
-    font-size: 8px; font-weight: 600;
-    color: rgba(255,255,255,0.85);
-    white-space: nowrap;
-    padding: 0 5px;
-    overflow: hidden; text-overflow: ellipsis;
   }
 
-  /* Hoy */
-  .today-line {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 1px;
-    background: var(--yellow);
-    opacity: 0.6;
-    z-index: 5;
-    pointer-events: none;
-  }
-
-  /* Grid lines */
-  .month-grid {
+  /* Grid lines de meses */
+  .grid-line {
     position: absolute;
     top: 0; bottom: 0;
     width: 1px;
     background: var(--border);
-    opacity: 0.5;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* Línea de hoy */
+  .today-line {
+    position: absolute;
+    top: -4px; bottom: -4px;
+    width: 1.5px;
+    background: var(--yellow);
+    opacity: 0.7;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Barra */
+  .gantt-bar {
+    position: absolute;
+    height: 16px;
+    border-radius: 4px;
+    display: flex; align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    transition: opacity 0.3s ease, filter 0.2s ease;
+    opacity: 0;
+  }
+  .gantt-bar.show { opacity: 1; }
+  .gantt-bar:hover { filter: brightness(1.2); }
+  .bar-label {
+    font-size: 8px; font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    white-space: nowrap; padding: 0 5px;
+    overflow: hidden; text-overflow: ellipsis;
   }
 
   /* Footer */
   .footer {
     display: flex; justify-content: space-between;
-    align-items: center; margin-top: 20px;
-    padding-top: 16px;
+    align-items: center; margin-top: 16px;
+    padding-top: 14px;
     border-top: 1px solid var(--border);
     flex-wrap: wrap; gap: 8px;
   }
@@ -205,53 +203,54 @@
   /* Loader */
   .loader-wrap {
     display: flex; align-items: center;
-    justify-content: center; min-height: 200px;
+    justify-content: center; min-height: 180px;
   }
   .loader-ring {
-    width: 32px; height: 32px;
+    width: 30px; height: 30px;
     border: 3px solid var(--border);
     border-top-color: var(--magenta);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error-msg { color: var(--red); font-size:13px; text-align:center; padding:20px; }
+  .error-msg { color: var(--red); font-size:12px; text-align:center; padding:20px; }
 
   /* Tooltip */
   .tooltip {
     position: fixed;
-    background: #1e2130;
+    background: #1a1d26;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 10px 14px;
     font-size: 11px;
     pointer-events: none;
-    z-index: 100;
+    z-index: 999;
     display: none;
-    max-width: 220px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    min-width: 200px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   }
-  .tooltip-name {
+  .tt-name {
     font-family: 'Syne', sans-serif;
     font-size: 12px; font-weight: 700;
-    color: var(--text); margin-bottom: 6px;
+    color: var(--text); margin-bottom: 8px;
+    line-height: 1.3;
   }
-  .tooltip-row {
+  .tt-row {
     display: flex; justify-content: space-between;
-    gap: 12px; color: var(--muted);
-    margin-bottom: 3px; font-size: 10px;
+    gap: 16px; margin-bottom: 3px;
   }
-  .tooltip-row span:last-child { color: var(--text); }
+  .tt-row .lbl { color: var(--muted); font-size: 10px; }
+  .tt-row .val { color: var(--text); font-size: 10px; font-weight: 500; }
 </style>
 </head>
 <body>
 
 <div class="tooltip" id="tooltip">
-  <div class="tooltip-name" id="tt-name"></div>
-  <div class="tooltip-row"><span>Inicio</span><span id="tt-start"></span></div>
-  <div class="tooltip-row"><span>Fin</span><span id="tt-end"></span></div>
-  <div class="tooltip-row"><span>Tipo</span><span id="tt-tipo"></span></div>
-  <div class="tooltip-row"><span>SPI</span><span id="tt-spi"></span></div>
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-row"><span class="lbl">Inicio</span><span class="val" id="tt-start"></span></div>
+  <div class="tt-row"><span class="lbl">Fin</span><span class="val" id="tt-end"></span></div>
+  <div class="tt-row"><span class="lbl">Tipo</span><span class="val" id="tt-tipo"></span></div>
+  <div class="tt-row"><span class="lbl">SPI</span><span class="val" id="tt-spi"></span></div>
 </div>
 
 <div class="card">
@@ -268,14 +267,15 @@
         <div class="legend-dot" style="background:var(--cyan)"></div>Táctico
       </div>
       <div class="legend-item">
-        <div class="legend-dot" style="background:var(--yellow); width:2px; height:14px; border-radius:1px"></div>Hoy
+        <div style="width:2px;height:14px;background:var(--yellow);border-radius:1px"></div>Hoy
       </div>
     </div>
   </div>
 
   <div id="loader" class="loader-wrap"><div class="loader-ring"></div></div>
-  <div id="ganttWrap" class="gantt-wrap" style="display:none">
-    <table class="gantt-table" id="ganttTable"></table>
+
+  <div id="ganttOuter" class="gantt-outer" style="display:none">
+    <div class="gantt-inner" id="ganttInner"></div>
   </div>
 
   <div class="footer">
@@ -285,68 +285,62 @@
 </div>
 
 <script>
-  const TOKEN    = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
-  const WORKER   = 'https://royal-limit-9465.pochoa.workers.dev/';
-  const DB_ESTR  = '24d0a97eed8d81e99427e311c9f026aa'; // Proyectos Estratégicos
-  const DB_TACT  = '3210a97eed8d80628599c65e6b0b4ed1'; // Proyectos Tácticos
+  const TOKEN   = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const WORKER  = 'https://royal-limit-9465.pochoa.workers.dev/';
+  const DB_ESTR = '24d0a97eed8d81e99427e311c9f026aa';
+  const DB_TACT = '3210a97eed8d80628599c65e6b0b4ed1';
 
   const RESP_COLORS = [
     '#e040fb','#26c6da','#66bb6a','#ffa726',
     '#7c4dff','#f06292','#80cbc4','#ffcc02'
   ];
+  const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
-  const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
-  async function api(url, payload = {}) {
+  async function api(url, payload={}) {
     const res = await fetch(WORKER, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, token: `Bearer ${TOKEN}`, payload })
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ url, token:`Bearer ${TOKEN}`, payload })
     });
     return res.json();
   }
 
+  function getTitle(prop) {
+    if (!prop || prop.type !== 'title') return 'Sin nombre';
+    return prop.title?.[0]?.plain_text ?? 'Sin nombre';
+  }
   function getSelect(prop) {
     if (!prop) return null;
     if (prop.type === 'select') return prop.select?.name ?? null;
-    if (prop.type === 'multi_select') return prop.multi_select?.[0]?.name ?? null;
     return null;
   }
-
-  function getTitle(prop) {
-    if (!prop) return 'Sin nombre';
-    if (prop.type === 'title') return prop.title?.[0]?.plain_text ?? 'Sin nombre';
-    return 'Sin nombre';
-  }
-
   function getDates(prop) {
-    if (!prop || prop.type !== 'date') return { start: null, end: null };
+    if (!prop || prop.type !== 'date') return {start:null,end:null};
     return {
       start: prop.date?.start ? new Date(prop.date.start) : null,
       end:   prop.date?.end   ? new Date(prop.date.end)   : null
     };
   }
-
   function getNum(prop) {
     if (!prop) return null;
-    if (prop.type === 'number')  return prop.number ?? null;
-    if (prop.type === 'formula') return prop.formula?.number ?? null;
-    if (prop.type === 'rollup')  return prop.rollup?.number  ?? null;
+    if (prop.type==='number')  return prop.number ?? null;
+    if (prop.type==='formula') return prop.formula?.number ?? null;
+    if (prop.type==='rollup')  return prop.rollup?.number  ?? null;
     return null;
   }
-
   function fmtDate(d) {
     if (!d) return '—';
-    return d.toLocaleDateString('es-EC', { day:'2-digit', month:'short', year:'numeric' });
+    return d.toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'});
   }
 
   async function loadDB(dbId, tipo) {
-    const data  = await api(`https://api.notion.com/v1/databases/${dbId}/query`, { page_size: 100 });
+    const data  = await api(`https://api.notion.com/v1/databases/${dbId}/query`,{page_size:100});
     const pages = data.results || [];
     return pages.map(p => {
+      const titleProp = p.properties['Nombre del proyecto'] || p.properties['Name'] || Object.values(p.properties).find(x=>x.type==='title');
       const dates = getDates(p.properties['Fechas']);
       return {
-        name:        getTitle(p.properties['Nombre del proyecto'] || p.properties['Name']),
+        name:        getTitle(titleProp),
         responsable: getSelect(p.properties['Responsable 1']) || 'Sin asignar',
         start:       dates.start,
         end:         dates.end,
@@ -357,24 +351,31 @@
   }
 
   function buildGantt(projects) {
-    // Rango global: mín inicio → máx fin, forzar al menos todo 2026
-    const today    = new Date();
-    const allDates = projects.flatMap(p => [p.start, p.end]).filter(Boolean);
-    const minDate  = new Date(Math.min(new Date('2025-01-01'), ...allDates.map(d => d.getTime())));
-    const maxDate  = new Date(Math.max(new Date('2026-12-31'), ...allDates.map(d => d.getTime())));
+    const today = new Date();
 
-    // Snap a inicio de mes
-    const rangeStart = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-    const rangeEnd   = new Date(maxDate.getFullYear(), maxDate.getMonth() + 1, 0);
-    const totalMs    = rangeEnd - rangeStart;
+    // Rango: mín de todos los inicios → máx de todos los fines, al menos 2025-ene a 2026-dic
+    const allStarts = projects.map(p=>p.start.getTime());
+    const allEnds   = projects.map(p=>p.end.getTime());
+    const minTs = Math.min(new Date('2025-01-01').getTime(), ...allStarts);
+    const maxTs = Math.max(new Date('2026-12-31').getTime(), ...allEnds);
 
-    // Construir meses para header
+    const rangeStart = new Date(new Date(minTs).getFullYear(), new Date(minTs).getMonth(), 1);
+    const rangeEnd   = new Date(new Date(maxTs).getFullYear(), new Date(maxTs).getMonth()+1, 0);
+    const totalMs    = rangeEnd.getTime() - rangeStart.getTime();
+
+    // Meses en el rango
     const months = [];
-    let cur = new Date(rangeStart);
+    let cur = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
     while (cur <= rangeEnd) {
-      months.push({ year: cur.getFullYear(), month: cur.getMonth() });
-      cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+      months.push(new Date(cur));
+      cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
     }
+
+    function pct(date) {
+      return Math.max(0, Math.min(100, ((date.getTime()-rangeStart.getTime())/totalMs)*100));
+    }
+
+    const todayPct = pct(today);
 
     // Agrupar por responsable
     const respMap = {};
@@ -382,98 +383,128 @@
       if (!respMap[p.responsable]) respMap[p.responsable] = [];
       respMap[p.responsable].push(p);
     });
-
-    // Asignar color por responsable
-    const respNames  = Object.keys(respMap).sort();
+    const respNames = Object.keys(respMap).sort();
     const respColors = {};
-    respNames.forEach((r, i) => { respColors[r] = RESP_COLORS[i % RESP_COLORS.length]; });
+    respNames.forEach((r,i) => respColors[r] = RESP_COLORS[i % RESP_COLORS.length]);
 
-    // Posición % en timeline
-    function pos(date) {
-      return Math.max(0, Math.min(100, ((date - rangeStart) / totalMs) * 100));
-    }
-    function todayPct() { return pos(today); }
+    const container = document.getElementById('ganttInner');
+    container.innerHTML = '';
 
-    // HTML
-    let html = '<thead><tr class="gantt-header-row">';
-    html += '<th class="col-name">Proyecto</th>';
-    html += '<th class="col-tipo">Tipo</th>';
-    html += `<th style="position:relative; padding-bottom:12px">
-      <div style="display:flex; justify-content:space-between; padding:0 0 0 0">`;
+    // ── HEADER MESES ──
+    const monthHeader = document.createElement('div');
+    monthHeader.className = 'month-header';
     months.forEach((m, i) => {
-      const pct = (i / months.length) * 100;
-      html += `<span style="position:absolute; left:${pct}%; transform:translateX(-50%); white-space:nowrap">
-        ${MONTHS[m.month]} ${m.year !== today.getFullYear() ? m.year : ''}
-      </span>`;
+      const cell = document.createElement('div');
+      cell.className = 'month-cell';
+      // Mostrar año solo en enero o primer mes
+      const showYear = m.getMonth() === 0 || i === 0;
+      cell.textContent = MONTHS_ES[m.getMonth()] + (showYear ? ` ${m.getFullYear()}` : '');
+      monthHeader.appendChild(cell);
     });
-    html += '</div></th></tr></thead><tbody>';
+    container.appendChild(monthHeader);
 
+    // ── BLOQUES POR RESPONSABLE ──
     respNames.forEach(resp => {
       const projs = respMap[resp];
       const color = respColors[resp];
 
-      // Separator
-      html += `<tr class="resp-separator">
-        <td colspan="3">
-          <span class="resp-tag">
-            <span class="resp-dot" style="background:${color}"></span>
-            ${resp}
-            <span class="resp-count">${projs.length} proyecto${projs.length !== 1 ? 's' : ''}</span>
-          </span>
-        </td>
-      </tr>`;
+      const block = document.createElement('div');
+      block.className = 'resp-block';
 
+      // Separador
+      const sep = document.createElement('div');
+      sep.className = 'resp-sep';
+      sep.innerHTML = `
+        <span class="resp-dot" style="background:${color}"></span>
+        <span class="resp-name">${resp}</span>
+        <span class="resp-count">${projs.length} proyecto${projs.length!==1?'s':''}</span>`;
+      block.appendChild(sep);
+
+      // Filas de proyectos
       projs.forEach(p => {
-        const left  = pos(p.start);
-        const right = pos(p.end);
-        const width = Math.max(right - left, 0.5);
-        const spiStr = p.spi != null ? p.spi.toFixed(2) : '—';
+        const row = document.createElement('div');
+        row.className = 'proj-row';
 
-        // Color barra según tipo con transparencia
-        const barColor = p.tipo === 'Estratégico'
-          ? 'linear-gradient(90deg, rgba(224,64,251,0.9), rgba(224,64,251,0.6))'
-          : 'linear-gradient(90deg, rgba(38,198,218,0.9), rgba(38,198,218,0.6))';
+        // Nombre
+        const nameCol = document.createElement('div');
+        nameCol.className = 'proj-name-col';
+        nameCol.title = p.name;
+        nameCol.textContent = p.name;
 
-        const tdPct   = todayPct();
-        const tipoBadge = p.tipo === 'Estratégico'
+        // Tipo badge
+        const tipoCol = document.createElement('div');
+        tipoCol.className = 'proj-tipo-col';
+        tipoCol.innerHTML = p.tipo === 'Estratégico'
           ? '<span class="tipo-badge tipo-e">E</span>'
           : '<span class="tipo-badge tipo-t">T</span>';
 
-        html += `<tr class="proj-row"
-          data-name="${p.name.replace(/"/g,'&quot;')}"
-          data-start="${fmtDate(p.start)}"
-          data-end="${fmtDate(p.end)}"
-          data-tipo="${p.tipo}"
-          data-spi="${spiStr}">
-          <td><div class="proj-name" title="${p.name}">${p.name}</div></td>
-          <td class="proj-tipo">${tipoBadge}</td>
-          <td class="cell-timeline">
-            <div class="today-line" style="left:${tdPct}%"></div>
-            <div class="bar" style="left:${left}%; width:${width}%; background:${barColor}">
-              <span class="bar-label">${p.name}</span>
-            </div>
-          </td>
-        </tr>`;
-      });
-    });
+        // Timeline
+        const tlCol = document.createElement('div');
+        tlCol.className = 'timeline-col';
 
-    html += '</tbody>';
-    return html;
+        // Grid lines de meses
+        months.forEach((m,i) => {
+          if (i === 0) return;
+          const gl = document.createElement('div');
+          gl.className = 'grid-line';
+          gl.style.left = ((i / months.length) * 100) + '%';
+          tlCol.appendChild(gl);
+        });
+
+        // Línea de hoy
+        const tl = document.createElement('div');
+        tl.className = 'today-line';
+        tl.style.left = todayPct + '%';
+        tlCol.appendChild(tl);
+
+        // Barra
+        const left  = pct(p.start);
+        const right = pct(p.end);
+        const width = Math.max(right - left, 0.5);
+
+        const barColor = p.tipo === 'Estratégico'
+          ? 'linear-gradient(90deg,rgba(224,64,251,0.85),rgba(224,64,251,0.55))'
+          : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.55))';
+
+        const bar = document.createElement('div');
+        bar.className = 'gantt-bar';
+        bar.style.cssText = `left:${left}%;width:${width}%;background:${barColor}`;
+        bar.innerHTML = `<span class="bar-label">${p.name}</span>`;
+
+        // Datos tooltip
+        bar.dataset.name  = p.name;
+        bar.dataset.start = fmtDate(p.start);
+        bar.dataset.end   = fmtDate(p.end);
+        bar.dataset.tipo  = p.tipo;
+        bar.dataset.spi   = p.spi != null ? p.spi.toFixed(2) : '—';
+
+        tlCol.appendChild(bar);
+        row.appendChild(nameCol);
+        row.appendChild(tipoCol);
+        row.appendChild(tlCol);
+        block.appendChild(row);
+
+        // Animar barra
+        setTimeout(() => bar.classList.add('show'), 300);
+      });
+
+      container.appendChild(block);
+    });
   }
 
   // Tooltip
   const tooltip = document.getElementById('tooltip');
   document.addEventListener('mousemove', e => {
-    const row = e.target.closest('.proj-row');
-    if (row) {
+    const bar = e.target.closest('.gantt-bar');
+    if (bar) {
       tooltip.style.display = 'block';
       tooltip.style.left = (e.clientX + 14) + 'px';
       tooltip.style.top  = (e.clientY - 10) + 'px';
-      document.getElementById('tt-name').textContent  = row.dataset.name;
-      document.getElementById('tt-start').textContent = row.dataset.start;
-      document.getElementById('tt-end').textContent   = row.dataset.end;
-      document.getElementById('tt-tipo').textContent  = row.dataset.tipo;
-      document.getElementById('tt-spi').textContent   = row.dataset.spi;
+      document.getElementById('tt-name').textContent  = bar.dataset.name;
+      document.getElementById('tt-start').textContent = bar.dataset.start;
+      document.getElementById('tt-end').textContent   = bar.dataset.end;
+      document.getElementById('tt-tipo').textContent  = bar.dataset.tipo;
+      document.getElementById('tt-spi').textContent   = bar.dataset.spi;
     } else {
       tooltip.style.display = 'none';
     }
@@ -482,33 +513,26 @@
   async function load() {
     try {
       const [estr, tact] = await Promise.all([
-        loadDB(DB_ESTR, 'Estratégico'),
-        loadDB(DB_TACT, 'Táctico')
+        loadDB(DB_ESTR,'Estratégico'),
+        loadDB(DB_TACT,'Táctico')
       ]);
-
       const all = [...estr, ...tact];
-      if (!all.length) throw new Error('Sin proyectos con fechas');
+      if (!all.length) throw new Error('Sin proyectos');
 
-      const ganttHTML = buildGantt(all);
-      document.getElementById('ganttTable').innerHTML = ganttHTML;
-
-      // Animar barras
-      setTimeout(() => {
-        document.querySelectorAll('.bar').forEach(b => b.classList.add('visible'));
-      }, 200);
+      buildGantt(all);
 
       const now = new Date();
       document.getElementById('footerDate').textContent =
-        'Actualizado: ' + now.toLocaleDateString('es-EC', { day:'2-digit', month:'short', year:'numeric' }) +
-        ' · ' + now.toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit' });
+        'Actualizado: ' + now.toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'}) +
+        ' · ' + now.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit'});
 
-      document.getElementById('loader').style.display   = 'none';
-      document.getElementById('ganttWrap').style.display = 'block';
+      document.getElementById('loader').style.display     = 'none';
+      document.getElementById('ganttOuter').style.display = 'block';
 
     } catch(e) {
       console.error(e);
       document.getElementById('loader').innerHTML =
-        '<div class="error-msg">No se pudo cargar el Gantt. Verifica la conexión con Notion.</div>';
+        '<div class="error-msg">No se pudo cargar el Gantt.</div>';
     }
   }
 
