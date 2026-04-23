@@ -103,9 +103,9 @@
 </div>
 
 <script>
-  const TOKEN   = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
-  const WORKER  = 'https://royal-limit-9465.pochoa.workers.dev/';
-  const PAGE_ID = '31a0a97eed8d8019b154fd5b94712b14';
+  const TOKEN  = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
+  const WORKER = 'https://royal-limit-9465.pochoa.workers.dev/';
+  const DB_ID  = '24d0a97eed8d81e99427e311c9f026aa'; // Proyectos Estratégicos
 
   async function api(url, payload = {}) {
     const res = await fetch(WORKER, {
@@ -122,27 +122,38 @@
     return '#ef5350';
   }
 
+  function getNum(prop) {
+    if (!prop) return null;
+    if (prop.type === 'number')  return prop.number ?? null;
+    if (prop.type === 'formula') return prop.formula?.number ?? null;
+    if (prop.type === 'rollup')  return prop.rollup?.number  ?? null;
+    return null;
+  }
+
   async function load() {
     try {
-      const data = await api(`https://api.notion.com/v1/pages/${PAGE_ID}`);
-      const props = data.properties;
+      const data  = await api(
+        `https://api.notion.com/v1/databases/${DB_ID}/query`,
+        { page_size: 100 }
+      );
+      const pages = data.results || [];
+      if (!pages.length) throw new Error('Sin proyectos');
 
-      function exNum(prop) {
-        if (!prop) return null;
-        if (prop.type === 'rollup' && prop.rollup.type === 'number') return prop.rollup.number;
-        if (prop.type === 'formula') return prop.formula?.number ?? null;
-        if (prop.type === 'number') return prop.number ?? null;
-        return null;
-      }
+      let sumReal = 0, sumEsp = 0, count = 0;
+      pages.forEach(p => {
+        const r = getNum(p.properties['% Real']);
+        const e = getNum(p.properties['% Esperado']);
+        if (r != null && e != null) { sumReal += r; sumEsp += e; count++; }
+      });
 
-      const spiRaw = exNum(props['SPI Portafolio']);
-      const spi = spiRaw !== null ? (spiRaw <= 1 ? spiRaw * 100 : spiRaw) : null;
+      const avgReal = count ? sumReal / count : 0;
+      const avgEsp  = count ? sumEsp  / count : 0;
+      const spiRaw  = avgEsp > 0 ? avgReal / avgEsp : 0;
+      const spi     = spiRaw * 100; // convertir a porcentaje
 
       document.getElementById('loading').style.display = 'none';
       const main = document.getElementById('main');
       main.style.display = 'flex';
-
-      if (spi === null) return;
 
       const color = spiColor(spi);
 

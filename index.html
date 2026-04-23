@@ -284,64 +284,49 @@
 
 <script>
   const NOTION_TOKEN = 'ntn_h28436678537wLv37VyJFvRRrho77CWB0CCKSFw61lt8rL';
-  const DATABASE_ID  = '31a0a97eed8d80529d6ffef61cd63003';
-  const PAGE_ID      = '31a0a97eed8d8019b154fd5b94712b14';
+  const DB_ID        = '24d0a97eed8d81e99427e311c9f026aa'; // Proyectos Estratégicos
+  const WORKER       = 'https://royal-limit-9465.pochoa.workers.dev/';
+
+  function getNum(prop) {
+    if (!prop) return null;
+    if (prop.type === 'number')  return prop.number ?? null;
+    if (prop.type === 'formula') return prop.formula?.number ?? null;
+    if (prop.type === 'rollup')  return prop.rollup?.number  ?? null;
+    return null;
+  }
 
   async function loadData() {
     try {
-      // Leer rollups directamente de la página Portafolio 2026
-      const res = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
+      const res = await fetch(WORKER, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          url: `https://api.notion.com/v1/pages/${PAGE_ID}`,
-          token: `Bearer ${NOTION_TOKEN}`,
-          payload: {}
-        })
-      });
-      const data = await res.json();
-
-      if (!data.properties) {
-        showError('No se encontraron datos.');
-        console.log('Notion error:', JSON.stringify(data));
-        return;
-      }
-
-      const props = data.properties;
-
-      function extractNum(prop) {
-        if (!prop) return null;
-        if (prop.type === 'rollup' && prop.rollup.type === 'number') return prop.rollup.number;
-        if (prop.type === 'formula') return prop.formula?.number ?? null;
-        if (prop.type === 'number') return prop.number ?? null;
-        return null;
-      }
-
-      const realRaw = extractNum(props['Avance real del Portafolio']);
-      const espRaw  = extractNum(props['Avance Esperado']);
-      const spiRaw  = extractNum(props['SPI Portafolio']);
-
-      console.log('Rollups raw - real:', realRaw, 'esp:', espRaw, 'spi:', spiRaw);
-
-      const toPercent = v => v !== null ? Math.floor((v <= 1 ? v * 100 : v) * 100) / 100 : null;
-      const real = toPercent(realRaw);
-      const esp  = toPercent(espRaw);
-      const spi  = toPercent(spiRaw);
-
-      // Contar proyectos
-      const res2 = await fetch('https://royal-limit-9465.pochoa.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: 'https://api.notion.com/v1/databases/24d0a97eed8d81e99427e311c9f026aa/query',
+          url: `https://api.notion.com/v1/databases/${DB_ID}/query`,
           token: `Bearer ${NOTION_TOKEN}`,
           payload: { page_size: 100 }
         })
       });
-      const data2 = await res2.json();
-      const projectCount = data2.results ? data2.results.length : null;
+      const data = await res.json();
 
-      renderCards(real, esp, spi, projectCount);
+      if (!data.results) {
+        showError('No se encontraron datos.');
+        return;
+      }
+
+      const pages = data.results;
+      let sumReal = 0, sumEsp = 0, count = 0;
+
+      pages.forEach(p => {
+        const r = getNum(p.properties['% Real']);
+        const e = getNum(p.properties['% Esperado']);
+        if (r != null && e != null) { sumReal += r; sumEsp += e; count++; }
+      });
+
+      const avgReal = count ? (sumReal / count) * 100 : 0;
+      const avgEsp  = count ? (sumEsp  / count) * 100 : 0;
+      const spi     = avgEsp > 0 ? (avgReal / avgEsp) * 100 : 0;
+
+      renderCards(avgReal, avgEsp, spi, pages.length);
 
     } catch (err) {
       showError('Error conectando con Notion.');
