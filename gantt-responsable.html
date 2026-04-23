@@ -145,6 +145,7 @@
   }
   .tipo-e { background:rgba(224,64,251,0.15); color:var(--magenta); }
   .tipo-t { background:rgba(38,198,218,0.15);  color:var(--cyan); }
+  .tipo-c { background:rgba(102,187,106,0.15); color:var(--green); }
 
   .timeline-col {
     flex: 1; position: relative; height: 100%;
@@ -238,6 +239,7 @@
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:var(--magenta)"></div>Estratégico</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Táctico</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Cambio</div>
       <div class="legend-item">
         <div style="width:2px;height:14px;background:var(--yellow);border-radius:1px"></div>Hoy
       </div>
@@ -326,7 +328,7 @@
         start:       dates.start,
         end:         dates.end,
         spi:         getNum(p.properties['SPI']),
-        tipo
+        tipo:        tipo === 'Estratégico' ? 'Estratégico' : (getSelect(p.properties['Tipo']) === 'Cambio' ? 'Cambio' : 'Táctico')
       };
     }).filter(p => p.start && p.end);
   }
@@ -429,7 +431,9 @@
         tc.className = 'proj-tipo-col';
         tc.innerHTML = p.tipo==='Estratégico'
           ? '<span class="tipo-badge tipo-e">E</span>'
-          : '<span class="tipo-badge tipo-t">T</span>';
+          : p.tipo==='Cambio'
+            ? '<span class="tipo-badge tipo-c">C</span>'
+            : '<span class="tipo-badge tipo-t">T</span>';
 
         // Timeline
         const tl = document.createElement('div');
@@ -460,7 +464,9 @@
 
         const barColor = p.tipo==='Estratégico'
           ? 'linear-gradient(90deg,rgba(224,64,251,0.85),rgba(224,64,251,0.5))'
-          : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.5))';
+          : p.tipo==='Cambio'
+            ? 'linear-gradient(90deg,rgba(102,187,106,0.85),rgba(102,187,106,0.5))'
+            : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.5))';
 
         const bar = document.createElement('div');
         bar.className = 'gantt-bar';
