@@ -56,63 +56,74 @@
   }
   .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
 
-  /* ── GANTT ── */
-  .gantt-outer { overflow-x: auto; }
-  .gantt-inner { min-width: 700px; display: flex; flex-direction: column; }
+  /* ── SCROLL WRAPPER ── */
+  .gantt-scroll { overflow-x: auto; overflow-y: visible; }
 
-  /* Nombre + tipo columnas fijas */
-  .NAME_W  { width: 190px; min-width: 190px; flex-shrink: 0; }
-  .TIPO_W  { width: 32px;  min-width: 32px;  flex-shrink: 0; }
+  /* Columnas fijas */
+  .COL_NAME  { width: 190px; min-width: 190px; flex-shrink: 0; }
+  .COL_TIPO  { width: 28px;  min-width: 28px;  flex-shrink: 0; }
+  /* Cada semana: 22px */
+  .WEEK_W    { width: 22px; }
+  .TOTAL_W   { /* 52 semanas × 22px = 1144px */ }
 
-  /* ── MONTH HEADER ── */
-  .month-header-row {
+  /* ── HEADER ── */
+  .gantt-head {
     display: flex;
-    align-items: flex-end;
-    margin-bottom: 6px;
-    padding-bottom: 8px;
+    align-items: stretch;
     border-bottom: 2px solid var(--border);
+    margin-bottom: 0;
+    min-width: max-content;
   }
-  .mh-spacer { width: 222px; min-width: 222px; flex-shrink: 0; } /* NAME_W + TIPO_W */
-  .mh-timeline {
+  .head-spacer {
+    width: 218px; min-width: 218px; flex-shrink: 0;
+  }
+  .head-timeline {
+    display: flex; flex-direction: column;
     flex: 1;
-    position: relative;
-    height: 32px;
   }
-  /* Cada label de mes/trimestre */
-  .mh-label {
-    position: absolute;
-    transform: translateX(-50%);
-    bottom: 0;
-    text-align: center;
-    white-space: nowrap;
+
+  /* Fila de meses */
+  .months-row {
+    display: flex;
+    border-bottom: 1px solid var(--border);
   }
-  .mh-label .m-name {
-    display: block;
-    font-size: 9px; font-weight: 600;
+  .month-cell {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700;
     letter-spacing: 1.5px; text-transform: uppercase;
     color: var(--text);
+    background: rgba(224,64,251,0.06);
+    border-right: 1px solid var(--border);
+    padding: 5px 0;
   }
-  .mh-label .m-year {
-    display: block;
-    font-size: 8px; color: var(--muted);
-    letter-spacing: 0.5px;
+  .month-cell:last-child { border-right: none; }
+
+  /* Fila de semanas */
+  .weeks-row {
+    display: flex;
   }
-  /* Tick vertical */
-  .mh-tick {
-    position: absolute;
-    bottom: -8px;
-    width: 1px;
-    height: 8px;
-    background: var(--muted);
-    transform: translateX(-50%);
+  .week-cell {
+    width: 22px; min-width: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 7px; color: var(--muted);
+    border-right: 1px solid rgba(26,29,38,0.5);
+    padding: 3px 0;
+    font-weight: 500;
+  }
+  .week-cell:last-child { border-right: none; }
+  .week-cell.today-week {
+    color: var(--yellow);
+    font-weight: 700;
+    background: rgba(255,167,38,0.08);
   }
 
-  /* ── RESP BLOCK ── */
-  .resp-block { margin-bottom: 2px; }
+  /* ── RESPONSABLE BLOCK ── */
+  .resp-block { min-width: max-content; }
   .resp-sep {
     display: flex; align-items: center; gap: 8px;
     padding: 10px 0 6px 0;
     border-bottom: 1px solid var(--border);
+    min-width: max-content;
   }
   .resp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .resp-name {
@@ -126,6 +137,7 @@
     display: flex; align-items: center;
     height: 30px;
     border-bottom: 1px solid rgba(26,29,38,0.4);
+    min-width: max-content;
   }
   .proj-row:last-child { border-bottom: none; }
 
@@ -133,38 +145,48 @@
     width: 190px; min-width: 190px; flex-shrink: 0;
     font-size: 11px; color: var(--text);
     white-space: nowrap; overflow: hidden;
-    text-overflow: ellipsis; padding-right: 10px;
+    text-overflow: ellipsis; padding-right: 8px;
   }
   .proj-tipo-col {
-    width: 32px; min-width: 32px; flex-shrink: 0;
+    width: 28px; min-width: 28px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
   }
   .tipo-badge {
-    display: inline-block; padding: 2px 5px;
-    border-radius: 3px; font-size: 8px; font-weight: 700;
+    display: inline-block; padding: 2px 4px;
+    border-radius: 3px; font-size: 7px; font-weight: 700;
   }
   .tipo-e { background:rgba(224,64,251,0.15); color:var(--magenta); }
   .tipo-t { background:rgba(38,198,218,0.15);  color:var(--cyan); }
   .tipo-c { background:rgba(102,187,106,0.15); color:var(--green); }
 
-  .timeline-col {
-    flex: 1; position: relative; height: 100%;
+  /* Timeline de la fila */
+  .proj-timeline {
+    position: relative;
+    height: 100%;
     display: flex; align-items: center;
+    /* width se setea inline = 52 × 22px */
   }
-  .grid-line {
+
+  /* Grid lines semanales */
+  .week-grid {
     position: absolute; top: 0; bottom: 0;
-    width: 1px; background: var(--border); opacity: 0.35;
+    width: 1px; background: rgba(26,29,38,0.6);
     pointer-events: none;
   }
-  .today-line {
-    position: absolute; top: -3px; bottom: -3px;
-    width: 2px; background: var(--yellow); opacity: 0.75;
-    z-index: 5; pointer-events: none; border-radius: 1px;
+  .week-grid.month-start {
+    background: rgba(255,255,255,0.08);
   }
+  .week-grid.today-col {
+    background: var(--yellow);
+    opacity: 0.5; width: 22px;
+    z-index: 1;
+  }
+
+  /* Barra */
   .gantt-bar {
-    position: absolute; height: 16px; border-radius: 4px;
+    position: absolute; height: 16px; border-radius: 3px;
     display: flex; align-items: center; overflow: hidden;
-    cursor: pointer; opacity: 0;
+    cursor: pointer; opacity: 0; z-index: 2;
     transition: opacity 0.4s ease, filter 0.15s ease;
   }
   .gantt-bar.show { opacity: 1; }
@@ -172,8 +194,16 @@
   .bar-label {
     font-size: 8px; font-weight: 600;
     color: rgba(255,255,255,0.9);
-    white-space: nowrap; padding: 0 5px;
+    white-space: nowrap; padding: 0 4px;
     overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* Línea hoy */
+  .today-line {
+    position: absolute; top: -3px; bottom: -3px;
+    width: 2px; background: var(--yellow);
+    opacity: 0.8; z-index: 10; pointer-events: none;
+    border-radius: 1px;
   }
 
   /* Footer */
@@ -233,7 +263,7 @@
 <div class="card">
   <div class="card-header">
     <div>
-      <div class="card-label">Gestión de Capacidad · Bagó Ecuador</div>
+      <div class="card-label">Gestión de Capacidad · Bagó Ecuador · 2026</div>
       <div class="card-title">Línea de Tiempo por Responsable</div>
     </div>
     <div class="legend">
@@ -248,8 +278,9 @@
 
   <div id="loader" class="loader-wrap"><div class="loader-ring"></div></div>
 
-  <div id="ganttOuter" class="gantt-outer" style="display:none">
-    <div class="gantt-inner" id="ganttInner"></div>
+  <div id="ganttScroll" class="gantt-scroll" style="display:none">
+    <div id="ganttHead" class="gantt-head"></div>
+    <div id="ganttBody"></div>
   </div>
 
   <div class="footer">
@@ -264,16 +295,46 @@
   const DB_ESTR = '24d0a97eed8d81e99427e311c9f026aa';
   const DB_TACT = '3210a97eed8d80628599c65e6b0b4ed1';
 
-  // Rango FIJO: Ene 2025 → Dic 2026
-  const RANGE_START = new Date(2025, 0, 1);   // 1 Ene 2025
-  const RANGE_END   = new Date(2026, 11, 31); // 31 Dic 2026
-  const TOTAL_MS    = RANGE_END - RANGE_START;
-
+  const WEEK_W  = 22;   // px por semana
+  const YEAR    = 2026;
+  const MES_ES  = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const RESP_COLORS = ['#e040fb','#26c6da','#66bb6a','#ffa726','#7c4dff','#f06292','#80cbc4','#ffcc02'];
-  const MES_ES      = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
-  // Mostrar solo meses de inicio de trimestre: Ene, Abr, Jul, Oct
-  const TRIMESTRES  = [0, 3, 6, 9];
+  // ── Generar semanas del año ──
+  // Semana 1 = lunes de la primera semana ISO de 2026
+  function getWeeks() {
+    const weeks = [];
+    // Primer lunes del año (ISO week 1 start)
+    let d = new Date(YEAR, 0, 1);
+    // Ajustar al lunes de esa semana
+    const day = d.getDay(); // 0=dom,1=lun...
+    const diff = (day === 0) ? 1 : (day === 1 ? 0 : 8 - day);
+    d = new Date(YEAR, 0, 1 + (day === 1 ? 0 : (day === 0 ? 1 : 8 - day)));
+    // Más simple: primer lunes >= 29 dic 2025
+    d = new Date(2025, 11, 29); // 29 dic 2025 es lunes de semana 1 de 2026
+    for (let w = 1; w <= 52; w++) {
+      weeks.push({ num: w, start: new Date(d), month: d.getMonth() });
+      d = new Date(d.getTime() + 7 * 24 * 3600 * 1000);
+    }
+    return weeks;
+  }
+
+  const WEEKS = getWeeks();
+  const YEAR_START = WEEKS[0].start;
+  const YEAR_END   = new Date(WEEKS[51].start.getTime() + 6 * 24 * 3600 * 1000); // fin dom semana 52
+  const TOTAL_W_PX = WEEKS.length * WEEK_W;
+
+  // Calcular semana (0-indexed) dado una fecha
+  function dateToWeekIdx(date) {
+    const ms = date - YEAR_START;
+    if (ms < 0) return 0;
+    const idx = Math.floor(ms / (7 * 24 * 3600 * 1000));
+    return Math.min(idx, WEEKS.length - 1);
+  }
+
+  // Hoy
+  const TODAY = new Date();
+  const TODAY_WEEK = dateToWeekIdx(TODAY);
 
   async function api(url, payload={}) {
     const res = await fetch(WORKER, {
@@ -310,11 +371,8 @@
     if (!d) return '—';
     return d.toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'});
   }
-  function pct(date) {
-    return Math.max(0, Math.min(100, ((date - RANGE_START) / TOTAL_MS) * 100));
-  }
 
-  async function loadDB(dbId, tipo) {
+  async function loadDB(dbId, tipoBase) {
     const data  = await api(`https://api.notion.com/v1/databases/${dbId}/query`,{page_size:100});
     const pages = data.results || [];
     return pages.map(p => {
@@ -322,76 +380,69 @@
         || p.properties['Name']
         || Object.values(p.properties).find(x=>x.type==='title');
       const dates = getDates(p.properties['Fechas']);
+      const tipoNotion = getSelect(p.properties['Tipo']);
+      const tipo = tipoBase === 'Estratégico'
+        ? 'Estratégico'
+        : (tipoNotion === 'Cambio' ? 'Cambio' : 'Táctico');
       return {
         name:        getTitle(titleProp),
         responsable: getSelect(p.properties['Responsable 1']) || 'Sin asignar',
         start:       dates.start,
         end:         dates.end,
         spi:         getNum(p.properties['SPI']),
-        tipo:        tipo === 'Estratégico' ? 'Estratégico' : (getSelect(p.properties['Tipo']) === 'Cambio' ? 'Cambio' : 'Táctico')
+        tipo
       };
     }).filter(p => p.start && p.end);
   }
 
-  function buildGantt(projects) {
-    const today    = new Date();
-    const todayPct = pct(today);
-    const container = document.getElementById('ganttInner');
-    container.innerHTML = '';
-
-    // ── HEADER MESES (trimestral) ──
-    const headerRow = document.createElement('div');
-    headerRow.className = 'month-header-row';
+  function buildHeader() {
+    const head = document.getElementById('ganttHead');
 
     const spacer = document.createElement('div');
-    spacer.className = 'mh-spacer';
-    headerRow.appendChild(spacer);
+    spacer.className = 'head-spacer';
+    head.appendChild(spacer);
 
-    const tlHeader = document.createElement('div');
-    tlHeader.className = 'mh-timeline';
+    const tlHead = document.createElement('div');
+    tlHead.className = 'head-timeline';
 
-    // Generar todos los meses del rango y filtrar trimestres
-    let cur = new Date(RANGE_START);
-    while (cur <= RANGE_END) {
-      const m = cur.getMonth();
-      const y = cur.getFullYear();
-      if (TRIMESTRES.includes(m)) {
-        const leftPct = pct(cur);
+    // ── Fila meses ──
+    const monthsRow = document.createElement('div');
+    monthsRow.className = 'months-row';
 
-        const label = document.createElement('div');
-        label.className = 'mh-label';
-        label.style.left = leftPct + '%';
+    // Agrupar semanas por mes
+    const monthGroups = {};
+    WEEKS.forEach((w,i) => {
+      const m = w.month;
+      if (!monthGroups[m]) monthGroups[m] = [];
+      monthGroups[m].push(i);
+    });
 
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'm-name';
-        nameSpan.textContent = MES_ES[m];
+    Object.entries(monthGroups).sort((a,b)=>+a[0]-+b[0]).forEach(([m, idxs]) => {
+      const cell = document.createElement('div');
+      cell.className = 'month-cell';
+      cell.style.width  = (idxs.length * WEEK_W) + 'px';
+      cell.style.minWidth = (idxs.length * WEEK_W) + 'px';
+      cell.textContent = MES_ES[+m];
+      monthsRow.appendChild(cell);
+    });
+    tlHead.appendChild(monthsRow);
 
-        const yearSpan = document.createElement('span');
-        yearSpan.className = 'm-year';
-        yearSpan.textContent = y;
+    // ── Fila semanas ──
+    const weeksRow = document.createElement('div');
+    weeksRow.className = 'weeks-row';
+    WEEKS.forEach((w,i) => {
+      const cell = document.createElement('div');
+      cell.className = 'week-cell' + (i === TODAY_WEEK ? ' today-week' : '');
+      cell.textContent = w.num;
+      weeksRow.appendChild(cell);
+    });
+    tlHead.appendChild(weeksRow);
+    head.appendChild(tlHead);
+  }
 
-        label.appendChild(nameSpan);
-        label.appendChild(yearSpan);
-        tlHeader.appendChild(label);
+  function buildBody(projects) {
+    const body = document.getElementById('ganttBody');
 
-        const tick = document.createElement('div');
-        tick.className = 'mh-tick';
-        tick.style.left = leftPct + '%';
-        tlHeader.appendChild(tick);
-      }
-      cur = new Date(y, m + 1, 1);
-    }
-
-    // Línea de hoy en el header
-    const todayTick = document.createElement('div');
-    todayTick.style.cssText = `position:absolute;bottom:-8px;width:2px;height:8px;
-      background:var(--yellow);transform:translateX(-50%);left:${todayPct}%;border-radius:1px;`;
-    tlHeader.appendChild(todayTick);
-
-    headerRow.appendChild(tlHeader);
-    container.appendChild(headerRow);
-
-    // ── RESPONSABLES ──
     const respMap = {};
     projects.forEach(p => {
       if (!respMap[p.responsable]) respMap[p.responsable] = [];
@@ -423,10 +474,9 @@
         // Nombre
         const nc = document.createElement('div');
         nc.className = 'proj-name-col';
-        nc.title = p.name;
-        nc.textContent = p.name;
+        nc.title = p.name; nc.textContent = p.name;
 
-        // Tipo
+        // Tipo badge
         const tc = document.createElement('div');
         tc.className = 'proj-tipo-col';
         tc.innerHTML = p.tipo==='Estratégico'
@@ -437,57 +487,67 @@
 
         // Timeline
         const tl = document.createElement('div');
-        tl.className = 'timeline-col';
+        tl.className = 'proj-timeline';
+        tl.style.width  = TOTAL_W_PX + 'px';
+        tl.style.minWidth = TOTAL_W_PX + 'px';
 
-        // Grid lines en trimestres
-        let gc = new Date(RANGE_START);
-        while (gc <= RANGE_END) {
-          if (TRIMESTRES.includes(gc.getMonth())) {
-            const gl = document.createElement('div');
-            gl.className = 'grid-line';
-            gl.style.left = pct(gc) + '%';
-            tl.appendChild(gl);
-          }
-          gc = new Date(gc.getFullYear(), gc.getMonth()+1, 1);
+        // Grid lines semanales
+        WEEKS.forEach((w,i) => {
+          const gl = document.createElement('div');
+          gl.className = 'week-grid' + (w.num === 1 || (i > 0 && WEEKS[i].month !== WEEKS[i-1].month) ? ' month-start' : '');
+          gl.style.left = (i * WEEK_W) + 'px';
+          tl.appendChild(gl);
+        });
+
+        // Highlight semana actual
+        const todayHL = document.createElement('div');
+        todayHL.className = 'week-grid today-col';
+        todayHL.style.left = (TODAY_WEEK * WEEK_W) + 'px';
+        tl.appendChild(todayHL);
+
+        // Línea hoy (centro de la semana)
+        const todayLine = document.createElement('div');
+        todayLine.className = 'today-line';
+        todayLine.style.left = (TODAY_WEEK * WEEK_W + WEEK_W / 2) + 'px';
+        tl.appendChild(todayLine);
+
+        // Calcular barra
+        // Clamp fechas al rango del año
+        const barStart = p.start < YEAR_START ? YEAR_START : p.start;
+        const barEnd   = p.end   > YEAR_END   ? YEAR_END   : p.end;
+
+        if (barEnd >= YEAR_START && barStart <= YEAR_END) {
+          const startWk = dateToWeekIdx(barStart);
+          const endWk   = Math.min(dateToWeekIdx(barEnd) + 1, WEEKS.length);
+          const leftPx  = startWk * WEEK_W;
+          const widthPx = Math.max((endWk - startWk) * WEEK_W, WEEK_W);
+
+          const barColor = p.tipo==='Estratégico'
+            ? 'linear-gradient(90deg,rgba(224,64,251,0.85),rgba(224,64,251,0.55))'
+            : p.tipo==='Cambio'
+              ? 'linear-gradient(90deg,rgba(102,187,106,0.85),rgba(102,187,106,0.55))'
+              : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.55))';
+
+          const bar = document.createElement('div');
+          bar.className = 'gantt-bar';
+          bar.style.cssText = `left:${leftPx}px;width:${widthPx}px;background:${barColor}`;
+          bar.innerHTML = `<span class="bar-label">${p.name}</span>`;
+          bar.dataset.name  = p.name;
+          bar.dataset.start = fmtDate(p.start);
+          bar.dataset.end   = fmtDate(p.end);
+          bar.dataset.tipo  = p.tipo;
+          bar.dataset.spi   = p.spi!=null ? p.spi.toFixed(2) : '—';
+          tl.appendChild(bar);
+          setTimeout(() => bar.classList.add('show'), 250);
         }
 
-        // Línea hoy
-        const todayEl = document.createElement('div');
-        todayEl.className = 'today-line';
-        todayEl.style.left = todayPct + '%';
-        tl.appendChild(todayEl);
-
-        // Barra
-        const l = pct(p.start);
-        const r = pct(p.end);
-        const w = Math.max(r - l, 0.5);
-
-        const barColor = p.tipo==='Estratégico'
-          ? 'linear-gradient(90deg,rgba(224,64,251,0.85),rgba(224,64,251,0.5))'
-          : p.tipo==='Cambio'
-            ? 'linear-gradient(90deg,rgba(102,187,106,0.85),rgba(102,187,106,0.5))'
-            : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.5))';
-
-        const bar = document.createElement('div');
-        bar.className = 'gantt-bar';
-        bar.style.cssText = `left:${l}%;width:${w}%;background:${barColor}`;
-        bar.innerHTML = `<span class="bar-label">${p.name}</span>`;
-        bar.dataset.name  = p.name;
-        bar.dataset.start = fmtDate(p.start);
-        bar.dataset.end   = fmtDate(p.end);
-        bar.dataset.tipo  = p.tipo;
-        bar.dataset.spi   = p.spi!=null ? p.spi.toFixed(2) : '—';
-
-        tl.appendChild(bar);
         row.appendChild(nc);
         row.appendChild(tc);
         row.appendChild(tl);
         block.appendChild(row);
-
-        setTimeout(() => bar.classList.add('show'), 250);
       });
 
-      container.appendChild(block);
+      body.appendChild(block);
     });
   }
 
@@ -518,7 +578,8 @@
       const all = [...estr,...tact];
       if (!all.length) throw new Error('Sin proyectos');
 
-      buildGantt(all);
+      buildHeader();
+      buildBody(all);
 
       const now = new Date();
       document.getElementById('footerDate').textContent =
@@ -526,7 +587,7 @@
         ' · ' + now.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit'});
 
       document.getElementById('loader').style.display     = 'none';
-      document.getElementById('ganttOuter').style.display = 'block';
+      document.getElementById('ganttScroll').style.display = 'block';
 
     } catch(e) {
       console.error(e);
