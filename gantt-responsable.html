@@ -158,6 +158,7 @@
   .tipo-e { background:rgba(224,64,251,0.15); color:var(--magenta); }
   .tipo-t { background:rgba(38,198,218,0.15);  color:var(--cyan); }
   .tipo-c { background:rgba(102,187,106,0.15); color:var(--green); }
+  .tipo-i { background:rgba(255,167,38,0.15);  color:var(--yellow); }
 
   /* Timeline de la fila */
   .proj-timeline {
@@ -270,6 +271,7 @@
       <div class="legend-item"><div class="legend-dot" style="background:var(--magenta)"></div>Estratégico</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Táctico</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Cambio</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Iniciativa BRM</div>
       <div class="legend-item">
         <div style="width:2px;height:14px;background:var(--yellow);border-radius:1px"></div>Hoy
       </div>
@@ -383,7 +385,7 @@
       const tipoNotion = getSelect(p.properties['Tipo']);
       const tipo = tipoBase === 'Estratégico'
         ? 'Estratégico'
-        : (tipoNotion === 'Cambio' ? 'Cambio' : 'Táctico');
+        : (tipoNotion === 'Cambio' ? 'Cambio' : tipoNotion === 'Iniciativa BRM' ? 'Iniciativa BRM' : 'Táctico');
       return {
         name:        getTitle(titleProp),
         responsable: getSelect(p.properties['Responsable 1']) || 'Sin asignar',
@@ -483,7 +485,9 @@
           ? '<span class="tipo-badge tipo-e">E</span>'
           : p.tipo==='Cambio'
             ? '<span class="tipo-badge tipo-c">C</span>'
-            : '<span class="tipo-badge tipo-t">T</span>';
+            : p.tipo==='Iniciativa BRM'
+              ? '<span class="tipo-badge tipo-i">I</span>'
+              : '<span class="tipo-badge tipo-t">T</span>';
 
         // Timeline
         const tl = document.createElement('div');
@@ -526,7 +530,9 @@
             ? 'linear-gradient(90deg,rgba(224,64,251,0.85),rgba(224,64,251,0.55))'
             : p.tipo==='Cambio'
               ? 'linear-gradient(90deg,rgba(102,187,106,0.85),rgba(102,187,106,0.55))'
-              : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.55))';
+              : p.tipo==='Iniciativa BRM'
+                ? 'linear-gradient(90deg,rgba(255,167,38,0.85),rgba(255,167,38,0.55))'
+                : 'linear-gradient(90deg,rgba(38,198,218,0.85),rgba(38,198,218,0.55))';
 
           const bar = document.createElement('div');
           bar.className = 'gantt-bar';
